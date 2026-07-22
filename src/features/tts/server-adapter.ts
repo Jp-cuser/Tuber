@@ -1,6 +1,7 @@
 import { AppError } from '@/lib/errors/app-error';
 import { VoicevoxAdapter } from './adapters/voicevox';
 import { KoeiromapAdapter } from './adapters/koeiromap';
+import { GoogleTtsAdapter } from './adapters/google';
 import type { TtsAdapter, VoiceEngine } from './types';
 
 export function createServerTtsAdapter(
@@ -13,6 +14,15 @@ export function createServerTtsAdapter(
     if (!apiKey || !endpoint)
       throw new AppError('INTERNAL_ERROR', 500, 'Koeiromap is not configured');
     return new KoeiromapAdapter({ apiKey, endpoint });
+  }
+  if (engine === 'google') {
+    const apiKey = environment.TTS_GOOGLE_API_KEY?.trim();
+    if (!apiKey)
+      throw new AppError('INTERNAL_ERROR', 500, 'Google TTS is not configured');
+    return new GoogleTtsAdapter({
+      apiKey,
+      baseUrl: environment.TTS_GOOGLE_BASE_URL,
+    });
   }
   if (engine !== 'voicevox')
     throw new AppError('BAD_REQUEST', 400, 'TTS engine is not implemented');

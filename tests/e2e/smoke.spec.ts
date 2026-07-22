@@ -329,3 +329,49 @@ test('sends Koeiromap coordinates and style through the protected route', async 
   await page.getByRole('button', { name: 'Test synthesized speech' }).click();
   await expect(page.getByText('Playing synthesized speech')).toBeVisible();
 });
+
+test('sends Google voice and audio controls through the protected route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'google',
+      text: 'google fixture',
+      options: {
+        languageCode: 'en-US',
+        model: 'en-US-Neural2-A',
+        speed: 1.5,
+        pitch: 2,
+        volumeGainDb: 3,
+      },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'SUQz', mimeType: 'audio/mpeg' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('TTS engine').selectOption('google');
+  await page.getByLabel('Google TTS language').fill('en-US');
+  await page.getByLabel('Google TTS voice').fill('en-US-Neural2-A');
+  await page.getByLabel('Google TTS speed').fill('1.5');
+  await page.getByLabel('Google TTS pitch').fill('2');
+  await page.getByLabel('Google TTS volume gain').fill('3');
+  await page.getByLabel('Chat message').fill('google fixture');
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});

@@ -28,10 +28,10 @@ contract and completes VOICEVOX end to end.
 
 ## Verification
 
-- Unit: 40 suites and 216 tests pass.
+- Unit: 41 suites and 219 tests pass.
 - Integration: 5 suites and 11 tests pass.
-- Chromium E2E: 9 tests pass, including protected VOICEVOX and Koeiromap
-  preview playback.
+- Chromium E2E: 10 tests pass, including protected VOICEVOX, Koeiromap, and
+  Google TTS preview playback.
 - Format, lint, typecheck, and production build pass.
 
 ## TTS-002 Koeiromap
@@ -43,3 +43,14 @@ contract and completes VOICEVOX end to end.
 - The adapter accepts both base64 JSON and direct binary audio responses.
 - Studio engine selection exposes coordinates and style without leaking the key.
 - Contract and Chromium fixtures cover adapter mapping and application routing.
+
+## TTS-003 Google Text-to-Speech
+
+- The adapter maps text, language/voice selection, speaking rate, pitch, and
+  volume gain to the official `v1/text:synthesize` REST request.
+- API keys remain server-side and use `x-goog-api-key`, avoiding URL exposure.
+- Only HTTPS `googleapis.com` service endpoints are accepted and redirects are
+  rejected.
+- Base64 `audioContent` is normalized to MP3 and `v1/voices` is normalized to
+  the shared voice contract.
+- Studio, contract, and Chromium fixtures cover configuration and playback.

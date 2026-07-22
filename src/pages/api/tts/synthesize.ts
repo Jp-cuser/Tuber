@@ -14,11 +14,13 @@ const requestSchema = z.object({
       speakerId: z.string().max(100).optional(),
       model: z.string().max(200).optional(),
       speed: z.number().min(0.25).max(4).optional(),
-      pitch: z.number().min(-2).max(2).optional(),
+      pitch: z.number().min(-20).max(20).optional(),
       intonation: z.number().min(0).max(4).optional(),
       style: z.string().max(200).optional(),
       speakerX: z.number().min(-10).max(10).optional(),
       speakerY: z.number().min(-10).max(10).optional(),
+      languageCode: z.string().max(35).optional(),
+      volumeGainDb: z.number().min(-96).max(16).optional(),
     })
     .default({}),
 });

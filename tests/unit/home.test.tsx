@@ -72,6 +72,14 @@ describe('Home', () => {
     expect(screen.getByLabelText('Koeiromap voice X')).toHaveValue('0');
     expect(screen.getByLabelText('Koeiromap voice Y')).toHaveValue('0');
     expect(screen.getByLabelText('Koeiromap style')).toHaveValue('talk');
+    fireEvent.change(screen.getByLabelText('TTS engine'), {
+      target: { value: 'google' },
+    });
+    expect(screen.getByLabelText('Google TTS language')).toHaveValue('ja-JP');
+    expect(screen.getByLabelText('Google TTS voice')).toHaveValue(
+      'ja-JP-Neural2-B',
+    );
+    expect(screen.getByLabelText('Google TTS speed')).toHaveValue('1');
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {

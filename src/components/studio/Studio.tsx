@@ -122,6 +122,9 @@ export function Studio() {
   const [koeiromapX, setKoeiromapX] = useState(0);
   const [koeiromapY, setKoeiromapY] = useState(0);
   const [koeiromapStyle, setKoeiromapStyle] = useState('talk');
+  const [googleLanguage, setGoogleLanguage] = useState('ja-JP');
+  const [googleVoice, setGoogleVoice] = useState('ja-JP-Neural2-B');
+  const [googleVolume, setGoogleVolume] = useState(0);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -455,11 +458,19 @@ export function Studio() {
               pitch: ttsPitch,
               intonation: ttsIntonation,
             }
-          : {
-              speakerX: koeiromapX,
-              speakerY: koeiromapY,
-              style: koeiromapStyle,
-            },
+          : ttsEngine === 'koeiromap'
+            ? {
+                speakerX: koeiromapX,
+                speakerY: koeiromapY,
+                style: koeiromapStyle,
+              }
+            : {
+                languageCode: googleLanguage,
+                model: googleVoice,
+                speed: ttsSpeed,
+                pitch: ttsPitch,
+                volumeGainDb: googleVolume,
+              },
       );
       audioPlayback.current?.pause();
       if (audioPlaybackUrl.current)
@@ -908,6 +919,7 @@ export function Studio() {
               >
                 <option value="voicevox">VOICEVOX</option>
                 <option value="koeiromap">Koeiromap</option>
+                <option value="google">Google Text-to-Speech</option>
               </select>
               {ttsEngine === 'voicevox' ? (
                 <>
@@ -969,7 +981,7 @@ export function Studio() {
                     />
                   </label>
                 </>
-              ) : (
+              ) : ttsEngine === 'koeiromap' ? (
                 <>
                   <label className="text-xs text-white/70">
                     Voice X: {koeiromapX}
@@ -1013,6 +1025,74 @@ export function Studio() {
                       ),
                     )}
                   </select>
+                </>
+              ) : (
+                <>
+                  <label className="text-xs text-white/70">
+                    Language
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Google TTS language"
+                      value={googleLanguage}
+                      onChange={(event) =>
+                        setGoogleLanguage(event.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Voice
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Google TTS voice"
+                      value={googleVoice}
+                      onChange={(event) => setGoogleVoice(event.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Speed: {ttsSpeed.toFixed(2)}
+                    <input
+                      className="w-full"
+                      aria-label="Google TTS speed"
+                      type="range"
+                      min="0.25"
+                      max="4"
+                      step="0.05"
+                      value={ttsSpeed}
+                      onChange={(event) =>
+                        setTtsSpeed(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Pitch: {ttsPitch.toFixed(1)}
+                    <input
+                      className="w-full"
+                      aria-label="Google TTS pitch"
+                      type="range"
+                      min="-20"
+                      max="20"
+                      step="1"
+                      value={ttsPitch}
+                      onChange={(event) =>
+                        setTtsPitch(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="col-span-2 text-xs text-white/70">
+                    Volume gain: {googleVolume.toFixed(1)} dB
+                    <input
+                      className="w-full"
+                      aria-label="Google TTS volume gain"
+                      type="range"
+                      min="-20"
+                      max="16"
+                      step="1"
+                      value={googleVolume}
+                      onChange={(event) =>
+                        setGoogleVolume(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
                 </>
               )}
               <button

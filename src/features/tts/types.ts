@@ -23,6 +23,8 @@ export interface TtsOptions {
   style?: string;
   speakerX?: number;
   speakerY?: number;
+  languageCode?: string;
+  volumeGainDb?: number;
 }
 
 export interface AudioPayload {
