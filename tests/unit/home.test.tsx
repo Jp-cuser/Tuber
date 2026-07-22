@@ -104,6 +104,24 @@ describe('Home', () => {
     ).toContain('"chromaTolerance":0.35');
   });
 
+  it('exposes the user-supplied Live2D runtime configuration', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    fireEvent.change(screen.getByLabelText('Avatar mode'), {
+      target: { value: 'live2d' },
+    });
+    expect(screen.getByLabelText('Live2D Core script')).toHaveValue(
+      '/live2d/live2dcubismcore.min.js',
+    );
+    expect(screen.getByLabelText('Live2D bridge script')).toHaveValue(
+      '/live2d/runtime.js',
+    );
+    expect(screen.getByLabelText('Live2D model manifest')).toHaveValue(
+      '/live2d/avatar/avatar.model3.json',
+    );
+    expect(screen.getByRole('button', { name: 'Load Live2D' })).toBeVisible();
+  });
+
   it('sends chat history to the AI API and renders the response', async () => {
     useSettingsStore.setState({
       reasoningEnabled: true,

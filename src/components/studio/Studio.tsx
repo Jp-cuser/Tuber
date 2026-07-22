@@ -28,6 +28,8 @@ import {
   validatePngTuberVideo,
 } from '@/features/avatar/pngtuber';
 import { PngTuberRenderer } from './PngTuberRenderer';
+import { Live2DRenderer } from './Live2DRenderer';
+import type { Live2DConfig } from '@/features/avatar/live2d';
 import {
   clearPngTuberModel,
   getPngTuberModel,
@@ -108,7 +110,24 @@ export function Studio() {
   const [avatarPresentation, setAvatarPresentation] =
     useState<AvatarPresentation>(defaultAvatarPresentation);
   const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
-  const [avatarMode, setAvatarMode] = useState<'vrm' | 'pngtuber'>('vrm');
+  const [avatarMode, setAvatarMode] = useState<'vrm' | 'live2d' | 'pngtuber'>(
+    'vrm',
+  );
+  const [live2dConfig, setLive2dConfig] = useState<Live2DConfig>({
+    coreScriptUrl: '/live2d/live2dcubismcore.min.js',
+    bridgeScriptUrl: '/live2d/runtime.js',
+    modelUrl: '/live2d/avatar/avatar.model3.json',
+  });
+  const [live2dEnabled, setLive2dEnabled] = useState(false);
+  const [live2dStatus, setLive2dStatus] = useState('Live2D is not loaded');
+  const handleLive2DReady = useCallback(
+    () => setLive2dStatus('Live2D model ready'),
+    [],
+  );
+  const handleLive2DError = useCallback(
+    (message: string) => setLive2dStatus(message),
+    [],
+  );
   const [pngTuberIdleSource, setPngTuberIdleSource] = useState<string>();
   const [pngTuberTalkingSource, setPngTuberTalkingSource] = useState<string>();
   const [pngTuberStatus, setPngTuberStatus] = useState(
@@ -537,9 +556,17 @@ export function Studio() {
         className="absolute inset-0 z-10 grid place-items-center"
         aria-label="character stage"
       >
-        {avatarMode === 'pngtuber' &&
-        pngTuberIdleSource &&
-        pngTuberTalkingSource ? (
+        {avatarMode === 'live2d' && live2dEnabled ? (
+          <div className="h-[80vh] w-full max-w-3xl">
+            <Live2DRenderer
+              config={live2dConfig}
+              onReady={handleLive2DReady}
+              onError={handleLive2DError}
+            />
+          </div>
+        ) : avatarMode === 'pngtuber' &&
+          pngTuberIdleSource &&
+          pngTuberTalkingSource ? (
           <div className="h-[80vh] w-full max-w-3xl">
             <PngTuberRenderer
               idleSource={pngTuberIdleSource}
@@ -592,12 +619,57 @@ export function Studio() {
               aria-label="Avatar mode"
               value={avatarMode}
               onChange={(event) =>
-                setAvatarMode(event.target.value as 'vrm' | 'pngtuber')
+                setAvatarMode(
+                  event.target.value as 'vrm' | 'live2d' | 'pngtuber',
+                )
               }
             >
               <option value="vrm">VRM</option>
+              <option value="live2d">Live2D</option>
               <option value="pngtuber">MotionPNGTuber</option>
             </select>
+            {avatarMode === 'live2d' && (
+              <>
+                {(
+                  [
+                    ['coreScriptUrl', 'Live2D Core script'],
+                    ['bridgeScriptUrl', 'Live2D bridge script'],
+                    ['modelUrl', 'Live2D model manifest'],
+                  ] as const
+                ).map(([key, label]) => (
+                  <label key={key} className="col-span-2 text-xs text-white/70">
+                    {label}
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label={label}
+                      value={live2dConfig[key]}
+                      onChange={(event) => {
+                        setLive2dEnabled(false);
+                        setLive2dConfig((current) => ({
+                          ...current,
+                          [key]: event.target.value,
+                        }));
+                      }}
+                    />
+                  </label>
+                ))}
+                <button
+                  className="panel-button col-span-2"
+                  onClick={() => {
+                    setLive2dStatus('Loading Live2D model');
+                    setLive2dEnabled(true);
+                  }}
+                >
+                  Load Live2D
+                </button>
+                <p
+                  className="col-span-2 text-xs text-white/60"
+                  aria-live="polite"
+                >
+                  {live2dStatus}
+                </p>
+              </>
+            )}
             <button
               className="panel-button"
               onClick={() =>

@@ -33,7 +33,7 @@
 | AVATAR-003   | Avatar          | VRM pose/motion/emotion                            | Required    | Phase 3  | Done        | Typed controls; humanoid pose/idle/wave/blink animation; expression mapping; tests/docs  |
 | AVATAR-004   | Avatar          | VRM lighting/transform/fixed position              | Required    | Phase 3  | Done        | Validated persistent transforms; ambient/key lighting; position lock; UI/unit tests/docs |
 | AVATAR-005   | Avatar          | Thinking pose                                      | Required    | Phase 3  | Done        | Generation-state override; humanoid thinking pose; automatic restore; tests/docs         |
-| AVATAR-006   | Avatar          | Live2D Cubism 3+                                   | Required    | Phase 4  | Not Started |                                                                                          |
+| AVATAR-006   | Avatar          | Live2D Cubism 3+                                   | Required    | Phase 4  | In Progress | Same-origin user SDK bridge; model lifecycle adapter; contract/security tests; workflow  |
 | AVATAR-007   | Avatar          | Live2D emotions and motion groups                  | Required    | Phase 4  | Not Started |                                                                                          |
 | AVATAR-008   | Avatar          | MotionPNGTuber-compatible mode                     | Required    | Phase 4  | Done        | Idle/talking videos; IndexedDB restore/clear; sensitivity switch; unit and Chromium E2E  |
 | AVATAR-009   | Avatar          | PNGTuber chroma key/sensitivity/transform          | Required    | Phase 4  | Done        | Canvas chroma key; color/tolerance/sensitivity/scale/offsets; persistence; tests/E2E     |

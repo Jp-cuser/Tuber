@@ -3,6 +3,16 @@
 Phase 4 is in progress. The first checkpoint establishes the independent
 MotionPNGTuber-compatible playback layer.
 
+## AVATAR-006 Live2D Cubism 3+ foundation
+
+- A runtime bridge isolates the UI from user-supplied licensed Cubism Core and
+  rendering framework files.
+- Core, bridge, and model paths are restricted to same-origin `.js` and
+  `.model3.json` resources.
+- The adapter owns script ordering, model mount, and deterministic disposal.
+- Contract fixtures verify the lifecycle and missing-runtime/unsafe-path errors
+  without redistributing proprietary SDK or model files.
+
 ## AVATAR-008 MotionPNGTuber-compatible mode
 
 - Studio selects separate user-supplied idle and talking MP4/WebM videos.
@@ -30,5 +40,5 @@ motion-group mapping.
 
 ## Verification
 
-- Unit: 33 suites and 188 tests pass.
+- Unit: 34 suites and 194 tests pass.
 - Chromium E2E: 4 tests pass, including VRM and MotionPNGTuber asset lifecycles.

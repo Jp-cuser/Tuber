@@ -84,6 +84,10 @@ MotionPNGTuber mode accepts separate local MP4/WebM idle and talking videos and
 stores them in IndexedDB. Sensitivity, chroma-key color/tolerance, scale, and X/Y
 offsets are adjustable and restored locally; video bytes are never uploaded.
 
+Live2D uses a same-origin, user-supplied Cubism Core and runtime bridge because
+licensed SDK files are not redistributed. See `docs/live2d-sdk-workflow.md` for
+the required paths, bridge contract, and security restrictions.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.
