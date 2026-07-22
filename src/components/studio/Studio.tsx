@@ -29,6 +29,12 @@ import {
 } from '@/features/avatar/pngtuber';
 import { PngTuberRenderer } from './PngTuberRenderer';
 import {
+  clearPngTuberModel,
+  getPngTuberModel,
+  savePngTuberVideo,
+  type StoredPngTuberModel,
+} from '@/features/avatar/pngtuber-library';
+import {
   deleteVrmModel,
   getVrmModel,
   listVrmModels,
@@ -103,6 +109,27 @@ export function Studio() {
     'Select idle and talking videos',
   );
   const [pngTuberSensitivity, setPngTuberSensitivity] = useState(0.5);
+  const applyPngTuberModel = useCallback((model?: StoredPngTuberModel) => {
+    const apply = (
+      video: StoredPngTuberModel['idle'],
+      update: typeof setPngTuberIdleSource,
+    ) => {
+      const source = video
+        ? URL.createObjectURL(new Blob([video.data], { type: video.type }))
+        : undefined;
+      update((current) => {
+        if (current) URL.revokeObjectURL(current);
+        return source;
+      });
+    };
+    apply(model?.idle, setPngTuberIdleSource);
+    apply(model?.talking, setPngTuberTalkingSource);
+    setPngTuberStatus(
+      model?.idle && model.talking
+        ? 'Idle and talking videos ready'
+        : 'Select idle and talking videos',
+    );
+  }, []);
   const handleVrmLoaded = useCallback(
     () => setVrmStatus('VRM model ready'),
     [],
@@ -147,6 +174,11 @@ export function Studio() {
     document.documentElement.lang = settings.language;
   }, [i18n, settings.language]);
   useEffect(() => setAvatarPresentation(readAvatarPresentation()), []);
+  useEffect(() => {
+    void getPngTuberModel()
+      .then(applyPngTuberModel)
+      .catch(() => setPngTuberStatus('Unable to open PNGTuber storage'));
+  }, [applyPngTuberModel]);
   const updateAvatarPresentation = <Key extends keyof AvatarPresentation>(
     key: Key,
     value: AvatarPresentation[Key],
@@ -214,14 +246,16 @@ export function Studio() {
     if (!file) return;
     try {
       validatePngTuberVideo(file);
-      const source = URL.createObjectURL(file);
-      const update =
-        kind === 'idle' ? setPngTuberIdleSource : setPngTuberTalkingSource;
-      update((current) => {
-        if (current) URL.revokeObjectURL(current);
-        return source;
-      });
-      setPngTuberStatus(`${kind === 'idle' ? 'Idle' : 'Talking'} video ready`);
+      setPngTuberStatus(`Saving ${kind} video`);
+      void savePngTuberVideo(kind, file)
+        .then(applyPngTuberModel)
+        .catch((error: unknown) =>
+          setPngTuberStatus(
+            error instanceof Error
+              ? error.message
+              : 'Unable to save PNGTuber video',
+          ),
+        );
     } catch (error) {
       setPngTuberStatus(
         error instanceof Error ? error.message : 'Invalid PNGTuber video',
@@ -837,6 +871,19 @@ export function Studio() {
                 >
                   {pngTuberStatus}
                 </p>
+                <button
+                  className="panel-button col-span-2"
+                  disabled={!pngTuberIdleSource && !pngTuberTalkingSource}
+                  onClick={() =>
+                    void clearPngTuberModel()
+                      .then(() => applyPngTuberModel())
+                      .catch(() =>
+                        setPngTuberStatus('Unable to clear PNGTuber videos'),
+                      )
+                  }
+                >
+                  Clear PNGTuber videos
+                </button>
               </>
             )}
           </div>

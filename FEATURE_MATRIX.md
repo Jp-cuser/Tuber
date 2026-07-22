@@ -35,7 +35,7 @@
 | AVATAR-005   | Avatar          | Thinking pose                                      | Required    | Phase 3  | Done        | Generation-state override; humanoid thinking pose; automatic restore; tests/docs         |
 | AVATAR-006   | Avatar          | Live2D Cubism 3+                                   | Required    | Phase 4  | Not Started |                                                                                          |
 | AVATAR-007   | Avatar          | Live2D emotions and motion groups                  | Required    | Phase 4  | Not Started |                                                                                          |
-| AVATAR-008   | Avatar          | MotionPNGTuber-compatible mode                     | Required    | Phase 4  | In Progress | Typed idle/talking state; MP4/WebM validation; renderer and Studio switching; unit tests |
+| AVATAR-008   | Avatar          | MotionPNGTuber-compatible mode                     | Required    | Phase 4  | Done        | Idle/talking videos; IndexedDB restore/clear; sensitivity switch; unit and Chromium E2E  |
 | AVATAR-009   | Avatar          | PNGTuber chroma key/sensitivity/transform          | Required    | Phase 4  | Not Started |                                                                                          |
 | AI-001       | AI              | OpenAI                                             | Required    | Phase 2  | Done        | Server config; compatible adapter; contract and route tests; provider guide              |
 | AI-002       | AI              | Anthropic                                          | Required    | Phase 2  | Done        | Native messages adapter; validation/stream contracts; provider guide                     |

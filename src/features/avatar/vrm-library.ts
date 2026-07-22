@@ -2,7 +2,8 @@ import { validateVrmFile } from './vrm-file';
 
 const DATABASE_NAME = 'local-ai-tuber-assets';
 const STORE_NAME = 'vrm-models';
-const DATABASE_VERSION = 1;
+const PNGTUBER_STORE_NAME = 'pngtuber-models';
+const DATABASE_VERSION = 2;
 const SELECTED_MODEL_KEY = 'local-ai-tuber-selected-vrm';
 
 export interface StoredVrmModel {
@@ -49,6 +50,10 @@ function openDatabase(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE_NAME))
         request.result.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      if (!request.result.objectStoreNames.contains(PNGTUBER_STORE_NAME))
+        request.result.createObjectStore(PNGTUBER_STORE_NAME, {
+          keyPath: 'id',
+        });
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () =>

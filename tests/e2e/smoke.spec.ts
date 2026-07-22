@@ -139,3 +139,33 @@ test('loads, restores, and deletes an original generated VRM fixture', async ({
   await expect(page.getByLabel('VRM avatar renderer')).toHaveCount(0);
   await expect(page.getByLabel('VRM model')).toHaveValue('');
 });
+
+test('persists and clears a local MotionPNGTuber video pair', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'はじめる' }).click();
+  await page.getByLabel('Avatar mode').selectOption('pngtuber');
+  const videoInputs = page.locator('input[accept="video/mp4,video/webm"]');
+  await videoInputs.nth(0).setInputFiles({
+    name: 'idle.webm',
+    mimeType: 'video/webm',
+    buffer: Buffer.from([0x1a, 0x45, 0xdf, 0xa3]),
+  });
+  await videoInputs.nth(1).setInputFiles({
+    name: 'talking.webm',
+    mimeType: 'video/webm',
+    buffer: Buffer.from([0x1a, 0x45, 0xdf, 0xa3, 0x01]),
+  });
+  await expect(page.getByText('Idle and talking videos ready')).toBeVisible();
+  await expect(page.getByLabel('PNGTuber renderer')).toBeVisible();
+
+  await page.reload();
+  await page.getByRole('button', { name: 'はじめる' }).click();
+  await page.getByLabel('Avatar mode').selectOption('pngtuber');
+  await expect(page.getByLabel('PNGTuber renderer')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Clear PNGTuber videos' }).click();
+  await expect(page.getByLabel('PNGTuber renderer')).toHaveCount(0);
+  await expect(page.getByText('Select idle and talking videos')).toBeVisible();
+});
