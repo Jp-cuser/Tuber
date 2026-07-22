@@ -1,10 +1,12 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
 } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { DraggablePanel } from '@/components/common/DraggablePanel';
 import { detectLanguage } from '@/features/i18n/i18n';
@@ -20,6 +22,12 @@ import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
+import { validateVrmFile } from '@/features/avatar/vrm-file';
+
+const VrmRenderer = dynamic(
+  () => import('./VrmRenderer').then((module) => module.VrmRenderer),
+  { ssr: false },
+);
 
 const themeClasses = {
   default: 'theme-default',
@@ -50,9 +58,20 @@ export function Studio() {
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
+  const [vrmSource, setVrmSource] = useState<string>();
+  const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
+  const handleVrmLoaded = useCallback(
+    () => setVrmStatus('VRM model ready'),
+    [],
+  );
+  const handleVrmError = useCallback(
+    (message: string) => setVrmStatus(message),
+    [],
+  );
   const mediaInput = useRef<HTMLInputElement>(null);
   const overlayInput = useRef<HTMLInputElement>(null);
   const imageAttachmentInput = useRef<HTMLInputElement>(null);
+  const vrmInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
   const preset =
@@ -86,9 +105,29 @@ export function Studio() {
     () => () => {
       if (mediaSource) URL.revokeObjectURL(mediaSource);
       if (overlaySource) URL.revokeObjectURL(overlaySource);
+      if (vrmSource) URL.revokeObjectURL(vrmSource);
     },
-    [mediaSource, overlaySource],
+    [mediaSource, overlaySource, vrmSource],
   );
+
+  const chooseVrm = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      validateVrmFile(file);
+      const source = URL.createObjectURL(file);
+      setVrmSource((current) => {
+        if (current) URL.revokeObjectURL(current);
+        return source;
+      });
+      setVrmStatus(`Loading ${file.name}`);
+    } catch (error) {
+      setVrmStatus(
+        error instanceof Error ? error.message : 'Invalid VRM model',
+      );
+    }
+  };
 
   const chooseFile = (
     event: ChangeEvent<HTMLInputElement>,
@@ -313,16 +352,26 @@ export function Studio() {
         className="absolute inset-0 z-10 grid place-items-center"
         aria-label="character stage"
       >
-        <div className="grid h-64 w-64 place-items-center rounded-full border border-white/10 bg-white/5 text-center shadow-[0_0_100px_rgba(34,211,238,.12)] backdrop-blur-sm">
-          <div>
-            <div className="text-7xl">◉</div>
-            <p className="mt-4 text-sm text-white/55">
-              Character renderer
-              <br />
-              Phase 3
-            </p>
+        {vrmSource ? (
+          <div className="h-[80vh] w-full max-w-3xl" aria-label="VRM renderer">
+            <VrmRenderer
+              source={vrmSource}
+              onLoaded={handleVrmLoaded}
+              onError={handleVrmError}
+            />
           </div>
-        </div>
+        ) : (
+          <div className="grid h-64 w-64 place-items-center rounded-full border border-white/10 bg-white/5 text-center shadow-[0_0_100px_rgba(34,211,238,.12)] backdrop-blur-sm">
+            <div>
+              <div className="text-7xl">◉</div>
+              <p className="mt-4 text-sm text-white/55">
+                Character renderer
+                <br />
+                Phase 3
+              </p>
+            </div>
+          </div>
+        )}
       </section>
       {settings.assistantVisible && (
         <div
@@ -382,6 +431,15 @@ export function Studio() {
             >
               {t('overlay')}
             </button>
+            <button
+              className="panel-button col-span-2"
+              onClick={() => vrmInput.current?.click()}
+            >
+              Load VRM
+            </button>
+            <p className="col-span-2 text-xs text-white/60" aria-live="polite">
+              {vrmStatus}
+            </p>
           </div>
         </DraggablePanel>
       )}
@@ -557,6 +615,13 @@ export function Studio() {
         </button>
       )}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      <input
+        ref={vrmInput}
+        className="hidden"
+        type="file"
+        accept=".vrm,model/gltf-binary"
+        onChange={chooseVrm}
+      />
       <input
         ref={imageAttachmentInput}
         className="hidden"

@@ -21,11 +21,13 @@
     "check:node": "node scripts/check-node-version.mjs"
   },
   "dependencies": {
+    "@pixiv/three-vrm": "^3.4.2",
     "i18next": "25.3.2",
     "next": "15.5.21",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-i18next": "15.6.1",
+    "three": "^0.180.0",
     "zod": "4.0.17",
     "zustand": "5.0.7"
   },
@@ -37,6 +39,7 @@
     "@types/node": "24.2.1",
     "@types/react": "18.3.23",
     "@types/react-dom": "18.3.7",
+    "@types/three": "^0.180.0",
     "autoprefixer": "10.4.21",
     "eslint": "8.57.1",
     "eslint-config-next": "15.5.21",
