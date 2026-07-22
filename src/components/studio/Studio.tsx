@@ -35,6 +35,12 @@ import {
   type StoredPngTuberModel,
 } from '@/features/avatar/pngtuber-library';
 import {
+  defaultPngTuberPresentation,
+  readPngTuberPresentation,
+  writePngTuberPresentation,
+  type PngTuberPresentation,
+} from '@/features/avatar/pngtuber-presentation';
+import {
   deleteVrmModel,
   getVrmModel,
   listVrmModels,
@@ -108,7 +114,8 @@ export function Studio() {
   const [pngTuberStatus, setPngTuberStatus] = useState(
     'Select idle and talking videos',
   );
-  const [pngTuberSensitivity, setPngTuberSensitivity] = useState(0.5);
+  const [pngTuberPresentation, setPngTuberPresentation] =
+    useState<PngTuberPresentation>(defaultPngTuberPresentation);
   const applyPngTuberModel = useCallback((model?: StoredPngTuberModel) => {
     const apply = (
       video: StoredPngTuberModel['idle'],
@@ -174,6 +181,17 @@ export function Studio() {
     document.documentElement.lang = settings.language;
   }, [i18n, settings.language]);
   useEffect(() => setAvatarPresentation(readAvatarPresentation()), []);
+  useEffect(() => setPngTuberPresentation(readPngTuberPresentation()), []);
+  const updatePngTuberPresentation = <Key extends keyof PngTuberPresentation>(
+    key: Key,
+    value: PngTuberPresentation[Key],
+  ) => {
+    setPngTuberPresentation((current) => {
+      const next = { ...current, [key]: value };
+      writePngTuberPresentation(next);
+      return next;
+    });
+  };
   useEffect(() => {
     void getPngTuberModel()
       .then(applyPngTuberModel)
@@ -526,9 +544,10 @@ export function Studio() {
             <PngTuberRenderer
               idleSource={pngTuberIdleSource}
               talkingSource={pngTuberTalkingSource}
+              presentation={pngTuberPresentation}
               state={selectPngTuberState(
                 generating && messages.at(-1)?.content !== '' ? 1 : 0,
-                pngTuberSensitivity,
+                pngTuberPresentation.sensitivity,
               )}
             />
           </div>
@@ -851,7 +870,7 @@ export function Studio() {
                   Talking video
                 </button>
                 <label className="col-span-2 text-xs text-white/70">
-                  Sensitivity: {pngTuberSensitivity.toFixed(2)}
+                  Sensitivity: {pngTuberPresentation.sensitivity.toFixed(2)}
                   <input
                     className="w-full"
                     aria-label="PNGTuber sensitivity"
@@ -859,12 +878,82 @@ export function Studio() {
                     min="0"
                     max="1"
                     step="0.05"
-                    value={pngTuberSensitivity}
+                    value={pngTuberPresentation.sensitivity}
                     onChange={(event) =>
-                      setPngTuberSensitivity(event.target.valueAsNumber)
+                      updatePngTuberPresentation(
+                        'sensitivity',
+                        event.target.valueAsNumber,
+                      )
                     }
                   />
                 </label>
+                <label className="col-span-2 flex items-center gap-2 text-xs text-white/70">
+                  <input
+                    aria-label="Enable PNGTuber chroma key"
+                    type="checkbox"
+                    checked={pngTuberPresentation.chromaEnabled}
+                    onChange={(event) =>
+                      updatePngTuberPresentation(
+                        'chromaEnabled',
+                        event.target.checked,
+                      )
+                    }
+                  />
+                  Enable chroma key
+                </label>
+                <label className="text-xs text-white/70">
+                  Key color
+                  <input
+                    className="ms-2 h-8 w-12"
+                    aria-label="PNGTuber chroma color"
+                    type="color"
+                    value={pngTuberPresentation.chromaColor}
+                    onChange={(event) =>
+                      updatePngTuberPresentation(
+                        'chromaColor',
+                        event.target.value,
+                      )
+                    }
+                  />
+                </label>
+                <label className="text-xs text-white/70">
+                  Tolerance: {pngTuberPresentation.chromaTolerance.toFixed(2)}
+                  <input
+                    className="w-full"
+                    aria-label="PNGTuber chroma tolerance"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={pngTuberPresentation.chromaTolerance}
+                    onChange={(event) =>
+                      updatePngTuberPresentation(
+                        'chromaTolerance',
+                        event.target.valueAsNumber,
+                      )
+                    }
+                  />
+                </label>
+                {(['scale', 'offsetX', 'offsetY'] as const).map((key) => (
+                  <label key={key} className="col-span-2 text-xs text-white/70">
+                    {key}: {pngTuberPresentation[key].toFixed(2)}
+                    <input
+                      className="w-full"
+                      aria-label={`PNGTuber ${key}`}
+                      type="range"
+                      min={key === 'scale' ? 0.25 : -500}
+                      max={key === 'scale' ? 3 : 500}
+                      step={key === 'scale' ? 0.05 : 1}
+                      value={pngTuberPresentation[key]}
+                      onChange={(event) =>
+                        updatePngTuberPresentation(
+                          key,
+                          event.target.valueAsNumber,
+                        )
+                      }
+                    />
+                  </label>
+                ))}
                 <p
                   className="col-span-2 text-xs text-white/60"
                   aria-live="polite"

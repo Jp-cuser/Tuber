@@ -14,10 +14,21 @@ MotionPNGTuber-compatible playback layer.
 - Unit tests cover input validation, threshold clamping, state switching, and
   storage lifecycle. Chromium verifies upload, render, reload, and clear.
 
-Remaining work includes chroma-key rendering, transforms, and the Live2D
-user-supplied SDK workflow.
+Remaining work is the Live2D user-supplied SDK workflow, including emotion and
+motion-group mapping.
+
+## AVATAR-009 PNGTuber chroma key, sensitivity, and transforms
+
+- Every video frame is drawn to a canvas. Optional chroma key compares normalized
+  RGB distance against a validated key color and tolerance, clearing matching
+  pixels without changing non-key pixels.
+- Sensitivity, chroma enablement/color/tolerance, scale, and X/Y offsets are
+  runtime validated and persisted locally with safe fallback for malformed data.
+- Transform changes apply directly to the renderer canvas. Chromium verifies
+  scale and chroma settings persist alongside the video pair.
+- Pure pixel tests verify key removal; UI tests verify controls and persistence.
 
 ## Verification
 
-- Unit: 32 suites and 185 tests pass.
+- Unit: 33 suites and 188 tests pass.
 - Chromium E2E: 4 tests pass, including VRM and MotionPNGTuber asset lifecycles.

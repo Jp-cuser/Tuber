@@ -80,6 +80,10 @@ VRM look-at follows pointer movement over the canvas, and streamed response text
 drives the standard `aa` mouth expression. See `docs/vrm-verification.md` for the
 user-supplied model acceptance workflow.
 
+MotionPNGTuber mode accepts separate local MP4/WebM idle and talking videos and
+stores them in IndexedDB. Sensitivity, chroma-key color/tolerance, scale, and X/Y
+offsets are adjustable and restored locally; video bytes are never uploaded.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

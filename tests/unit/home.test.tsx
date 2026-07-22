@@ -90,6 +90,18 @@ describe('Home', () => {
       target: { value: '0.8' },
     });
     expect(screen.getByLabelText('PNGTuber sensitivity')).toHaveValue('0.8');
+    fireEvent.click(screen.getByLabelText('Enable PNGTuber chroma key'));
+    fireEvent.change(screen.getByLabelText('PNGTuber chroma tolerance'), {
+      target: { value: '0.35' },
+    });
+    fireEvent.change(screen.getByLabelText('PNGTuber scale'), {
+      target: { value: '1.5' },
+    });
+    expect(screen.getByLabelText('Enable PNGTuber chroma key')).toBeChecked();
+    expect(screen.getByLabelText('PNGTuber scale')).toHaveValue('1.5');
+    expect(
+      localStorage.getItem('local-ai-tuber-pngtuber-presentation'),
+    ).toContain('"chromaTolerance":0.35');
   });
 
   it('sends chat history to the AI API and renders the response', async () => {

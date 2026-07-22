@@ -159,11 +159,19 @@ test('persists and clears a local MotionPNGTuber video pair', async ({
   });
   await expect(page.getByText('Idle and talking videos ready')).toBeVisible();
   await expect(page.getByLabel('PNGTuber renderer')).toBeVisible();
+  await page.getByLabel('Enable PNGTuber chroma key').check();
+  await page.getByLabel('PNGTuber scale').fill('1.5');
+  await expect(page.getByLabel('PNGTuber renderer')).toHaveAttribute(
+    'style',
+    /scale\(1\.5\)/,
+  );
 
   await page.reload();
   await page.getByRole('button', { name: 'はじめる' }).click();
   await page.getByLabel('Avatar mode').selectOption('pngtuber');
   await expect(page.getByLabel('PNGTuber renderer')).toBeVisible();
+  await expect(page.getByLabel('Enable PNGTuber chroma key')).toBeChecked();
+  await expect(page.getByLabel('PNGTuber scale')).toHaveValue('1.5');
 
   await page.getByRole('button', { name: 'Clear PNGTuber videos' }).click();
   await expect(page.getByLabel('PNGTuber renderer')).toHaveCount(0);
