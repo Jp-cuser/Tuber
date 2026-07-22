@@ -64,6 +64,10 @@ AI secrets remain server-side. Configure a provider with variables such as `AI_O
 
 Custom API uses `AI_CUSTOM_API_URL`, `AI_CUSTOM_API_ALLOWED_ORIGINS`, `AI_CUSTOM_API_HEADERS`, `AI_CUSTOM_API_BODY_TEMPLATE`, and `AI_CUSTOM_API_RESPONSE_TEXT_PATH`. Headers and body templates are JSON strings. Non-loopback targets must appear in the comma-separated origin allowlist. Redirects are rejected and sensitive headers remain server-side.
 
+VRM models can be added from the Studio control panel. Files must use the `.vrm`
+extension, be non-empty, and be at most 100 MB. Models stay in browser IndexedDB;
+the last selection is restored locally and models can be deleted from the panel.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

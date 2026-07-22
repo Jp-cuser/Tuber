@@ -29,7 +29,7 @@
 | UI-010       | UI              | Preset questions and character presets             | Required    | Phase 1  | Done        | Five typed presets and question shortcuts                                                |
 | I18N-001     | I18N            | 16-language UI                                     | Required    | Phase 1  | Done        | 16 complete native resources; detection; switching; RTL; unit and Chromium E2E tests     |
 | AVATAR-001   | Avatar          | VRM renderer                                       | Required    | Phase 3  | In Progress | Three.js/three-vrm renderer, local upload validation, browser-only loading, unit tests   |
-| AVATAR-002   | Avatar          | VRM upload/list/select                             | Required    | Phase 3  | Not Started |                                                                                          |
+| AVATAR-002   | Avatar          | VRM upload/list/select                             | Required    | Phase 3  | Done        | Validated upload; IndexedDB library; list/select/delete/restore UI; tests and docs       |
 | AVATAR-003   | Avatar          | VRM pose/motion/emotion                            | Required    | Phase 3  | Not Started |                                                                                          |
 | AVATAR-004   | Avatar          | VRM lighting/transform/fixed position              | Required    | Phase 3  | Not Started |                                                                                          |
 | AVATAR-005   | Avatar          | Thinking pose                                      | Required    | Phase 3  | Not Started |                                                                                          |

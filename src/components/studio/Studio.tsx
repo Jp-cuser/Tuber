@@ -23,6 +23,15 @@ import { useSettingsStore } from '@/features/settings/store';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
+import {
+  deleteVrmModel,
+  getVrmModel,
+  listVrmModels,
+  readSelectedVrmModelId,
+  saveVrmModel,
+  writeSelectedVrmModelId,
+  type VrmModelSummary,
+} from '@/features/avatar/vrm-library';
 
 const VrmRenderer = dynamic(
   () => import('./VrmRenderer').then((module) => module.VrmRenderer),
@@ -59,6 +68,8 @@ export function Studio() {
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
   const [vrmSource, setVrmSource] = useState<string>();
+  const [vrmModels, setVrmModels] = useState<VrmModelSummary[]>([]);
+  const [selectedVrmId, setSelectedVrmId] = useState('');
   const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
   const handleVrmLoaded = useCallback(
     () => setVrmStatus('VRM model ready'),
@@ -101,6 +112,37 @@ export function Studio() {
     document.documentElement.dir = settings.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = settings.language;
   }, [i18n, settings.language]);
+  const selectVrm = useCallback(async (id: string) => {
+    if (!id) {
+      setSelectedVrmId('');
+      setVrmSource(undefined);
+      setVrmStatus('No VRM model selected');
+      writeSelectedVrmModelId();
+      return;
+    }
+    const model = await getVrmModel(id);
+    if (!model) throw new Error('The selected VRM model no longer exists');
+    const source = URL.createObjectURL(
+      new Blob([model.data], { type: 'model/gltf-binary' }),
+    );
+    setVrmSource((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return source;
+    });
+    setSelectedVrmId(id);
+    writeSelectedVrmModelId(id);
+    setVrmStatus(`Loading ${model.name}`);
+  }, []);
+  useEffect(() => {
+    void listVrmModels()
+      .then(async (models) => {
+        setVrmModels(models);
+        const selected = readSelectedVrmModelId();
+        if (selected && models.some((model) => model.id === selected))
+          await selectVrm(selected);
+      })
+      .catch(() => setVrmStatus('Unable to open VRM model storage'));
+  }, [selectVrm]);
   useEffect(
     () => () => {
       if (mediaSource) URL.revokeObjectURL(mediaSource);
@@ -116,17 +158,31 @@ export function Studio() {
     if (!file) return;
     try {
       validateVrmFile(file);
-      const source = URL.createObjectURL(file);
-      setVrmSource((current) => {
-        if (current) URL.revokeObjectURL(current);
-        return source;
-      });
-      setVrmStatus(`Loading ${file.name}`);
+      setVrmStatus(`Saving ${file.name}`);
+      void saveVrmModel(file)
+        .then(async (model) => {
+          setVrmModels(await listVrmModels());
+          await selectVrm(model.id);
+        })
+        .catch((error: unknown) =>
+          setVrmStatus(
+            error instanceof Error ? error.message : 'Unable to save VRM model',
+          ),
+        );
     } catch (error) {
       setVrmStatus(
         error instanceof Error ? error.message : 'Invalid VRM model',
       );
     }
+  };
+  const removeSelectedVrm = () => {
+    if (!selectedVrmId) return;
+    void deleteVrmModel(selectedVrmId)
+      .then(async () => {
+        await selectVrm('');
+        setVrmModels(await listVrmModels());
+      })
+      .catch(() => setVrmStatus('Unable to delete the VRM model'));
   };
 
   const chooseFile = (
@@ -436,6 +492,34 @@ export function Studio() {
               onClick={() => vrmInput.current?.click()}
             >
               Load VRM
+            </button>
+            <select
+              className="panel-button col-span-2"
+              aria-label="VRM model"
+              value={selectedVrmId}
+              onChange={(event) =>
+                void selectVrm(event.target.value).catch((error: unknown) =>
+                  setVrmStatus(
+                    error instanceof Error
+                      ? error.message
+                      : 'Unable to select VRM model',
+                  ),
+                )
+              }
+            >
+              <option value="">No VRM model</option>
+              {vrmModels.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+            <button
+              className="panel-button col-span-2"
+              disabled={!selectedVrmId}
+              onClick={removeSelectedVrm}
+            >
+              Delete selected VRM
             </button>
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {vrmStatus}

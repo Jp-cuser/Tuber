@@ -14,6 +14,17 @@ foundation without bundling or copying any character asset.
 - The renderer remains `In Progress` until a licensed fixture workflow, visual
   E2E evidence, transforms, expressions, motion, gaze, and lip sync are complete.
 
+## AVATAR-002 VRM upload, list, and selection
+
+- User-supplied VRM bytes and metadata are stored durably in browser IndexedDB;
+  models are not uploaded to the application server or a third party.
+- The control panel lists stored models and supports upload, selection, deletion,
+  and restoration of the last selected model after a page reload.
+- Replaced object URLs are revoked, database connections are closed, and storage
+  failures are surfaced without discarding the current session.
+- Unit tests use an IndexedDB-compatible implementation to verify the full
+  save/list/read/delete lifecycle and selected-model persistence.
+
 ## Dependencies added
 
 - `three`
@@ -24,4 +35,4 @@ foundation without bundling or copying any character asset.
 
 - Format, lint, type checking, unit tests, integration tests, and production
   build pass at this checkpoint.
-- Unit total: 27 suites and 163 tests.
+- Unit total: 28 suites and 165 tests.
