@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createAiAdapter } from '@/features/ai/factory';
 import { AiGateway } from '@/features/ai/gateway';
-import { getAiProviderConfig } from '@/features/ai/server-config';
+import { createServerAiAdapter } from '@/features/ai/server-adapter';
 import type { AiProvider, AiResult } from '@/features/ai/types';
 import { withApiSecurity } from '@/lib/api/handler';
 
@@ -11,7 +11,7 @@ export type AiAdapterResolver = (
 
 export function createGenerateHandler(
   resolveAdapter: AiAdapterResolver = (provider) =>
-    createAiAdapter(getAiProviderConfig(provider)),
+    createServerAiAdapter(provider),
 ) {
   return async function generate(
     request: NextApiRequest,

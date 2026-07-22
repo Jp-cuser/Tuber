@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createAiAdapter } from '@/features/ai/factory';
 import { AiGateway } from '@/features/ai/gateway';
-import { getAiProviderConfig } from '@/features/ai/server-config';
+import { createServerAiAdapter } from '@/features/ai/server-adapter';
 import type { AiProvider } from '@/features/ai/types';
 import { withApiSecurity } from '@/lib/api/handler';
 import { AppError } from '@/lib/errors/app-error';
@@ -25,7 +25,7 @@ function safeContentType(upstream: Response): string {
 
 export function createStreamHandler(
   resolveAdapter: AiAdapterResolver = (provider) =>
-    createAiAdapter(getAiProviderConfig(provider)),
+    createServerAiAdapter(provider),
 ) {
   return async function stream(
     request: NextApiRequest,

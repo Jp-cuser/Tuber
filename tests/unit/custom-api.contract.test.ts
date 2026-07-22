@@ -47,3 +47,42 @@ test('rejects redirects', async () => {
     ),
   ).rejects.toThrow('redirects');
 });
+
+test('exposes a normalized NDJSON stream for the shared chat client', async () => {
+  class TestResponse {
+    headers: Headers;
+    constructor(
+      public readonly body: string,
+      init: { headers: Record<string, string> },
+    ) {
+      this.headers = new Headers(init.headers);
+    }
+  }
+  Object.defineProperty(globalThis, 'Response', {
+    configurable: true,
+    value: TestResponse,
+  });
+  const adapter = new CustomApiAdapter(
+    {
+      url: 'http://127.0.0.1:8080/chat',
+      allowedOrigins: new Set(),
+      bodyTemplate: {},
+      responseTextPath: 'text',
+    },
+    jest.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ text: 'streamed' }),
+    })) as unknown as typeof fetch,
+  );
+
+  const result = await adapter.stream(
+    { provider: 'custom-api', model: 'demo', messages: [] },
+    new AbortController().signal,
+  );
+
+  expect(result.headers.get('content-type')).toBe('application/x-ndjson');
+  expect((result as unknown as TestResponse).body).toBe(
+    '{"text":"streamed"}\n',
+  );
+});

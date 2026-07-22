@@ -15,3 +15,9 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - Format, lint, type checking, unit tests, integration tests, and production build pass at this checkpoint.
 - The Windows E2E runner now owns the Next.js server job explicitly, so both Chromium cases pass and the process terminates cleanly.
 - Final provider parity review remains outstanding.
+
+## AI-016 Custom API
+
+- Custom API configuration is loaded only from server environment variables.
+- Request headers, structured body templates, response text paths, origin allowlisting, manual redirect rejection, and safe streaming normalization are implemented.
+- Contract and configuration tests cover request mapping, redirects, malformed configuration, and the shared NDJSON stream path.

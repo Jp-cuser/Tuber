@@ -57,6 +57,8 @@ See `.env.example`. `ACCESS_TOKEN` and `DEMO_TOKEN`, when used, must contain at 
 
 AI secrets remain server-side. Configure a provider with variables such as `AI_OPENAI_API_KEY`, `AI_ANTHROPIC_API_KEY`, or `AI_GOOGLE_API_KEY`; provider-specific base URLs use `AI_<PROVIDER>_BASE_URL`. Azure additionally uses `AI_AZURE_DEPLOYMENT` and `AI_AZURE_API_VERSION`. `AI_REQUEST_TIMEOUT_MS` defaults to 60000. Select the provider, model, and short-term history limit in studio settings. Imported history limits outside 2-200 are reset to the safe default of 20 messages.
 
+Custom API uses `AI_CUSTOM_API_URL`, `AI_CUSTOM_API_ALLOWED_ORIGINS`, `AI_CUSTOM_API_HEADERS`, `AI_CUSTOM_API_BODY_TEMPLATE`, and `AI_CUSTOM_API_RESPONSE_TEXT_PATH`. Headers and body templates are JSON strings. Non-loopback targets must appear in the comma-separated origin allowlist. Redirects are rejected and sensitive headers remain server-side.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

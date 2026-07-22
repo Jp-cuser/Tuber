@@ -1,4 +1,7 @@
-import { getAiProviderConfig } from '@/features/ai/server-config';
+import {
+  getAiProviderConfig,
+  getCustomApiOptions,
+} from '@/features/ai/server-config';
 import { AppError } from '@/lib/errors/app-error';
 
 describe('AI server configuration', () => {
@@ -41,5 +44,32 @@ describe('AI server configuration', () => {
       deployment: 'avatar-chat',
       apiVersion: '2025-04-01-preview',
     });
+  });
+
+  it('loads Custom API mapping without exposing it to the browser', () => {
+    expect(
+      getCustomApiOptions({
+        AI_CUSTOM_API_URL: 'https://custom.example/chat',
+        AI_CUSTOM_API_ALLOWED_ORIGINS: 'https://custom.example',
+        AI_CUSTOM_API_HEADERS: '{"Authorization":"Bearer server-secret"}',
+        AI_CUSTOM_API_BODY_TEMPLATE:
+          '{"model":"{{model}}","messages":"{{messages}}"}',
+        AI_CUSTOM_API_RESPONSE_TEXT_PATH: 'data.answer',
+      }),
+    ).toMatchObject({
+      url: 'https://custom.example/chat',
+      headers: { Authorization: 'Bearer server-secret' },
+      bodyTemplate: { model: '{{model}}', messages: '{{messages}}' },
+      responseTextPath: 'data.answer',
+    });
+  });
+
+  it('rejects malformed Custom API header configuration', () => {
+    expect(() =>
+      getCustomApiOptions({
+        AI_CUSTOM_API_URL: 'http://127.0.0.1:8080/chat',
+        AI_CUSTOM_API_HEADERS: '{bad json}',
+      }),
+    ).toThrow('Invalid Custom API headers configuration');
   });
 });

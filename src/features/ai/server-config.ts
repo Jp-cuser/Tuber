@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { AppError } from '@/lib/errors/app-error';
 import { getProviderDescriptor } from './registry';
 import type { AiProvider, AiProviderConfig } from './types';
+import type { CustomApiOptions } from './adapters/custom-api';
 
 const providerEnvironmentNames: Record<AiProvider, string> = {
   openai: 'OPENAI',
@@ -33,13 +34,12 @@ export function getAiProviderConfig(
   provider: AiProvider,
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): AiProviderConfig {
-  if (provider === 'custom-api') {
+  if (provider === 'custom-api')
     throw new AppError(
       'BAD_REQUEST',
       400,
-      'Custom API uses a dedicated server-side configuration endpoint',
+      'Custom API requires custom options',
     );
-  }
 
   const prefix = `AI_${providerEnvironmentNames[provider]}`;
   const descriptor = getProviderDescriptor(provider);
@@ -70,5 +70,60 @@ export function getAiProviderConfig(
     apiVersion: optionalValue(environment[`${prefix}_API_VERSION`]),
     organization: optionalValue(environment[`${prefix}_ORGANIZATION`]),
     timeoutMs: timeoutResult.data,
+  };
+}
+
+function parseJsonObject(
+  value: string | undefined,
+  name: string,
+): Record<string, string> | undefined {
+  if (!optionalValue(value)) return undefined;
+  try {
+    const parsed = JSON.parse(value as string) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      throw new Error();
+    if (!Object.values(parsed).every((item) => typeof item === 'string'))
+      throw new Error();
+    return parsed as Record<string, string>;
+  } catch {
+    throw new AppError('INTERNAL_ERROR', 500, `Invalid ${name} configuration`);
+  }
+}
+
+export function getCustomApiOptions(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): CustomApiOptions {
+  const url = optionalValue(environment.AI_CUSTOM_API_URL);
+  if (!url)
+    throw new AppError('INTERNAL_ERROR', 500, 'Custom API is not configured');
+  let bodyTemplate: unknown = { model: '{{model}}', messages: '{{messages}}' };
+  if (optionalValue(environment.AI_CUSTOM_API_BODY_TEMPLATE)) {
+    try {
+      bodyTemplate = JSON.parse(
+        environment.AI_CUSTOM_API_BODY_TEMPLATE as string,
+      );
+    } catch {
+      throw new AppError(
+        'INTERNAL_ERROR',
+        500,
+        'Invalid Custom API body template configuration',
+      );
+    }
+  }
+  return {
+    url,
+    allowedOrigins: new Set(
+      (environment.AI_CUSTOM_API_ALLOWED_ORIGINS ?? '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    ),
+    headers: parseJsonObject(
+      environment.AI_CUSTOM_API_HEADERS,
+      'Custom API headers',
+    ),
+    bodyTemplate,
+    responseTextPath:
+      optionalValue(environment.AI_CUSTOM_API_RESPONSE_TEXT_PATH) ?? 'text',
   };
 }

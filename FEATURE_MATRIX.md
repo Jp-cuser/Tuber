@@ -52,7 +52,7 @@
 | AI-013       | AI              | LM Studio                                          | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-014       | AI              | Ollama                                             | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-015       | AI              | Dify                                               | Required    | Phase 2  | Not Started |                                                                                          |
-| AI-016       | AI              | Custom API                                         | Required    | Phase 2  | Not Started |                                                                                          |
+| AI-016       | AI              | Custom API                                         | Required    | Phase 2  | Done        | Server-only mapped adapter; SSRF/redirect/header guards; contract tests; Phase 2 report  |
 | AI-017       | AI              | Streaming and cancellation                         | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-018       | AI              | Multimodal image/webcam/screen capture             | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-019       | AI              | Reasoning mode and metadata                        | Required    | Phase 2  | Not Started |                                                                                          |
