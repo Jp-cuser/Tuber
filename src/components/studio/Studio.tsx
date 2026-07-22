@@ -28,6 +28,7 @@ import { transcribeAudioFile } from '@/features/speech/transcription-client';
 import { whisperModels, type WhisperModel } from '@/features/speech/whisper';
 import { BrowserSilenceMonitor } from '@/features/speech/silence-monitor';
 import { synthesizeSpeech } from '@/features/tts/client';
+import type { VoiceEngine } from '@/features/tts/types';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
@@ -113,10 +114,14 @@ export function Studio() {
   const [silenceProgress, setSilenceProgress] = useState(0);
   const [microphoneLevel, setMicrophoneLevel] = useState(0);
   const [ttsStatus, setTtsStatus] = useState('VOICEVOX ready');
+  const [ttsEngine, setTtsEngine] = useState<VoiceEngine>('voicevox');
   const [ttsSpeakerId, setTtsSpeakerId] = useState('1');
   const [ttsSpeed, setTtsSpeed] = useState(1);
   const [ttsPitch, setTtsPitch] = useState(0);
   const [ttsIntonation, setTtsIntonation] = useState(1);
+  const [koeiromapX, setKoeiromapX] = useState(0);
+  const [koeiromapY, setKoeiromapY] = useState(0);
+  const [koeiromapStyle, setKoeiromapStyle] = useState('talk');
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -431,7 +436,7 @@ export function Studio() {
     }
   };
 
-  const previewVoicevox = async () => {
+  const previewSpeech = async () => {
     const latest = messages.at(-1)?.content;
     const text = input.trim() || (typeof latest === 'string' ? latest : '');
     if (!text) {
@@ -440,12 +445,22 @@ export function Studio() {
     }
     setTtsStatus('Synthesizing speech');
     try {
-      const blob = await synthesizeSpeech('voicevox', text, {
-        speakerId: ttsSpeakerId,
-        speed: ttsSpeed,
-        pitch: ttsPitch,
-        intonation: ttsIntonation,
-      });
+      const blob = await synthesizeSpeech(
+        ttsEngine,
+        text,
+        ttsEngine === 'voicevox'
+          ? {
+              speakerId: ttsSpeakerId,
+              speed: ttsSpeed,
+              pitch: ttsPitch,
+              intonation: ttsIntonation,
+            }
+          : {
+              speakerX: koeiromapX,
+              speakerY: koeiromapY,
+              style: koeiromapStyle,
+            },
+      );
       audioPlayback.current?.pause();
       if (audioPlaybackUrl.current)
         URL.revokeObjectURL(audioPlaybackUrl.current);
@@ -877,66 +892,135 @@ export function Studio() {
               {transcribing ? 'Transcribing audio…' : 'Transcribe audio file'}
             </button>
             <fieldset className="col-span-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
-              <legend className="px-1 text-xs font-semibold">VOICEVOX</legend>
-              <label className="text-xs text-white/70">
-                Speaker ID
-                <input
-                  className="mt-1 w-full rounded bg-white/10 px-2 py-1"
-                  aria-label="VOICEVOX speaker ID"
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={ttsSpeakerId}
-                  onChange={(event) => setTtsSpeakerId(event.target.value)}
-                />
-              </label>
-              <label className="text-xs text-white/70">
-                Speed: {ttsSpeed.toFixed(1)}
-                <input
-                  className="w-full"
-                  aria-label="VOICEVOX speed"
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  value={ttsSpeed}
-                  onChange={(event) => setTtsSpeed(event.target.valueAsNumber)}
-                />
-              </label>
-              <label className="text-xs text-white/70">
-                Pitch: {ttsPitch.toFixed(2)}
-                <input
-                  className="w-full"
-                  aria-label="VOICEVOX pitch"
-                  type="range"
-                  min="-0.15"
-                  max="0.15"
-                  step="0.01"
-                  value={ttsPitch}
-                  onChange={(event) => setTtsPitch(event.target.valueAsNumber)}
-                />
-              </label>
-              <label className="text-xs text-white/70">
-                Intonation: {ttsIntonation.toFixed(1)}
-                <input
-                  className="w-full"
-                  aria-label="VOICEVOX intonation"
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={ttsIntonation}
-                  onChange={(event) =>
-                    setTtsIntonation(event.target.valueAsNumber)
-                  }
-                />
-              </label>
+              <legend className="px-1 text-xs font-semibold">
+                Speech synthesis
+              </legend>
+              <select
+                className="panel-button col-span-2"
+                aria-label="TTS engine"
+                value={ttsEngine}
+                onChange={(event) => {
+                  setTtsEngine(event.target.value as VoiceEngine);
+                  setTtsStatus(
+                    `${event.target.selectedOptions[0]?.text} ready`,
+                  );
+                }}
+              >
+                <option value="voicevox">VOICEVOX</option>
+                <option value="koeiromap">Koeiromap</option>
+              </select>
+              {ttsEngine === 'voicevox' ? (
+                <>
+                  <label className="text-xs text-white/70">
+                    Speaker ID
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="VOICEVOX speaker ID"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={ttsSpeakerId}
+                      onChange={(event) => setTtsSpeakerId(event.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Speed: {ttsSpeed.toFixed(1)}
+                    <input
+                      className="w-full"
+                      aria-label="VOICEVOX speed"
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.1"
+                      value={ttsSpeed}
+                      onChange={(event) =>
+                        setTtsSpeed(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Pitch: {ttsPitch.toFixed(2)}
+                    <input
+                      className="w-full"
+                      aria-label="VOICEVOX pitch"
+                      type="range"
+                      min="-0.15"
+                      max="0.15"
+                      step="0.01"
+                      value={ttsPitch}
+                      onChange={(event) =>
+                        setTtsPitch(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Intonation: {ttsIntonation.toFixed(1)}
+                    <input
+                      className="w-full"
+                      aria-label="VOICEVOX intonation"
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={ttsIntonation}
+                      onChange={(event) =>
+                        setTtsIntonation(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label className="text-xs text-white/70">
+                    Voice X: {koeiromapX}
+                    <input
+                      className="w-full"
+                      aria-label="Koeiromap voice X"
+                      type="range"
+                      min="-10"
+                      max="10"
+                      step="1"
+                      value={koeiromapX}
+                      onChange={(event) =>
+                        setKoeiromapX(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Voice Y: {koeiromapY}
+                    <input
+                      className="w-full"
+                      aria-label="Koeiromap voice Y"
+                      type="range"
+                      min="-10"
+                      max="10"
+                      step="1"
+                      value={koeiromapY}
+                      onChange={(event) =>
+                        setKoeiromapY(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <select
+                    className="panel-button col-span-2"
+                    aria-label="Koeiromap style"
+                    value={koeiromapStyle}
+                    onChange={(event) => setKoeiromapStyle(event.target.value)}
+                  >
+                    {['talk', 'happy', 'sad', 'angry', 'fear', 'surprise'].map(
+                      (style) => (
+                        <option key={style}>{style}</option>
+                      ),
+                    )}
+                  </select>
+                </>
+              )}
               <button
                 className="panel-button col-span-2"
                 type="button"
-                onClick={() => void previewVoicevox()}
+                onClick={() => void previewSpeech()}
               >
-                Test VOICEVOX speech
+                Test synthesized speech
               </button>
               <p
                 className="col-span-2 text-xs text-white/60"

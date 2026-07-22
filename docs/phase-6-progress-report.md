@@ -28,7 +28,18 @@ contract and completes VOICEVOX end to end.
 
 ## Verification
 
-- Unit: 39 suites and 213 tests pass.
+- Unit: 40 suites and 216 tests pass.
 - Integration: 5 suites and 11 tests pass.
-- Chromium E2E: 8 tests pass, including protected VOICEVOX preview playback.
+- Chromium E2E: 9 tests pass, including protected VOICEVOX and Koeiromap
+  preview playback.
 - Format, lint, typecheck, and production build pass.
+
+## TTS-002 Koeiromap
+
+- API key and endpoint stay server-side; HTTPS is mandatory and redirects are
+  rejected.
+- X/Y voice coordinates are constrained to -10 through 10 and emotion style is
+  validated.
+- The adapter accepts both base64 JSON and direct binary audio responses.
+- Studio engine selection exposes coordinates and style without leaking the key.
+- Contract and Chromium fixtures cover adapter mapping and application routing.

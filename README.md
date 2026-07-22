@@ -106,6 +106,11 @@ default). The Studio preview exposes speaker ID, speed, pitch, and intonation;
 requests pass through the protected application API. Add any non-loopback local
 service origin to `TTS_LOCAL_ALLOWED_ORIGINS` explicitly.
 
+Koeiromap uses the server-only `TTS_KOEIROMAP_API_KEY` and HTTPS
+`TTS_KOEIROMAP_ENDPOINT`. Select Koeiromap in the Studio to adjust the X/Y
+voice coordinates and emotion style. Both JSON base64 and direct audio API
+responses are supported.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

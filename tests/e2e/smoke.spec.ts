@@ -288,6 +288,44 @@ test('synthesizes and plays a VOICEVOX preview through the application route', a
   await page.goto('/');
   await page.locator('button').first().click();
   await page.getByLabel('Chat message').fill('voice fixture');
-  await page.getByRole('button', { name: 'Test VOICEVOX speech' }).click();
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});
+
+test('sends Koeiromap coordinates and style through the protected route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'koeiromap',
+      text: 'koeiromap fixture',
+      options: { speakerX: -3, speakerY: 4, style: 'happy' },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'UklGRg==', mimeType: 'audio/wav' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('TTS engine').selectOption('koeiromap');
+  await page.getByLabel('Koeiromap voice X').fill('-3');
+  await page.getByLabel('Koeiromap voice Y').fill('4');
+  await page.getByLabel('Koeiromap style').selectOption('happy');
+  await page.getByLabel('Chat message').fill('koeiromap fixture');
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
   await expect(page.getByText('Playing synthesized speech')).toBeVisible();
 });

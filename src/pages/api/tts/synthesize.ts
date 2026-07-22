@@ -17,6 +17,8 @@ const requestSchema = z.object({
       pitch: z.number().min(-2).max(2).optional(),
       intonation: z.number().min(0).max(4).optional(),
       style: z.string().max(200).optional(),
+      speakerX: z.number().min(-10).max(10).optional(),
+      speakerY: z.number().min(-10).max(10).optional(),
     })
     .default({}),
 });

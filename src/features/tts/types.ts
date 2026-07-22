@@ -21,6 +21,8 @@ export interface TtsOptions {
   pitch?: number;
   intonation?: number;
   style?: string;
+  speakerX?: number;
+  speakerY?: number;
 }
 
 export interface AudioPayload {

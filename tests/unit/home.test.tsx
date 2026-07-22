@@ -64,8 +64,14 @@ describe('Home', () => {
     expect(screen.getByLabelText('VOICEVOX pitch')).toHaveValue('0');
     expect(screen.getByLabelText('VOICEVOX intonation')).toHaveValue('1');
     expect(
-      screen.getByRole('button', { name: 'Test VOICEVOX speech' }),
+      screen.getByRole('button', { name: 'Test synthesized speech' }),
     ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('TTS engine'), {
+      target: { value: 'koeiromap' },
+    });
+    expect(screen.getByLabelText('Koeiromap voice X')).toHaveValue('0');
+    expect(screen.getByLabelText('Koeiromap voice Y')).toHaveValue('0');
+    expect(screen.getByLabelText('Koeiromap style')).toHaveValue('talk');
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {
