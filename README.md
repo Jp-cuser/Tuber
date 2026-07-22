@@ -67,6 +67,9 @@ Custom API uses `AI_CUSTOM_API_URL`, `AI_CUSTOM_API_ALLOWED_ORIGINS`, `AI_CUSTOM
 VRM models can be added from the Studio control panel. Files must use the `.vrm`
 extension, be non-empty, and be at most 100 MB. Models stay in browser IndexedDB;
 the last selection is restored locally and models can be deleted from the panel.
+The same panel provides pose, idle-motion, and emotion controls. These controls
+use normalized humanoid bones and VRM expressions, so unsupported optional bones
+or expressions are ignored safely by the renderer.
 
 ## Baseline and parity
 

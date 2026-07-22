@@ -9,15 +9,31 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {
+  computeAvatarFrame,
+  type AvatarBone,
+  type AvatarControlState,
+} from '@/features/avatar/control';
 
 interface VrmRendererProps {
   source: string;
+  control: AvatarControlState;
   onLoaded?: () => void;
   onError?: (message: string) => void;
 }
 
-export function VrmRenderer({ source, onLoaded, onError }: VrmRendererProps) {
+export function VrmRenderer({
+  source,
+  control,
+  onLoaded,
+  onError,
+}: VrmRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const controlRef = useRef(control);
+
+  useEffect(() => {
+    controlRef.current = control;
+  }, [control]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -39,6 +55,7 @@ export function VrmRenderer({ source, onLoaded, onError }: VrmRendererProps) {
     keyLight.position.set(1, 2, 3);
     scene.add(keyLight);
     const clock = new Clock();
+    let elapsed = 0;
 
     const resize = () => {
       const width = Math.max(canvas.clientWidth, 1);
@@ -54,7 +71,22 @@ export function VrmRenderer({ source, onLoaded, onError }: VrmRendererProps) {
     const animate = () => {
       if (disposed) return;
       frame = requestAnimationFrame(animate);
-      model?.update(clock.getDelta());
+      const delta = clock.getDelta();
+      elapsed += delta;
+      if (model) {
+        const avatarFrame = computeAvatarFrame(controlRef.current, elapsed);
+        for (const [bone, rotation] of Object.entries(avatarFrame.bones)) {
+          const node = model.humanoid?.getNormalizedBoneNode(
+            bone as AvatarBone,
+          );
+          if (node && rotation) node.rotation.set(...rotation);
+        }
+        model.expressionManager?.resetValues();
+        if (controlRef.current.emotion !== 'neutral')
+          model.expressionManager?.setValue(controlRef.current.emotion, 1);
+        model.expressionManager?.setValue('blink', avatarFrame.blink);
+        model.update(delta);
+      }
       renderer.render(scene, camera);
     };
     animate();

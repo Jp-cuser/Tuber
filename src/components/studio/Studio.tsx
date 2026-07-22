@@ -32,6 +32,12 @@ import {
   writeSelectedVrmModelId,
   type VrmModelSummary,
 } from '@/features/avatar/vrm-library';
+import {
+  avatarEmotions,
+  avatarMotions,
+  avatarPoses,
+  type AvatarControlState,
+} from '@/features/avatar/control';
 
 const VrmRenderer = dynamic(
   () => import('./VrmRenderer').then((module) => module.VrmRenderer),
@@ -70,6 +76,11 @@ export function Studio() {
   const [vrmSource, setVrmSource] = useState<string>();
   const [vrmModels, setVrmModels] = useState<VrmModelSummary[]>([]);
   const [selectedVrmId, setSelectedVrmId] = useState('');
+  const [avatarControl, setAvatarControl] = useState<AvatarControlState>({
+    pose: 'neutral',
+    motion: 'idle',
+    emotion: 'neutral',
+  });
   const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
   const handleVrmLoaded = useCallback(
     () => setVrmStatus('VRM model ready'),
@@ -412,6 +423,7 @@ export function Studio() {
           <div className="h-[80vh] w-full max-w-3xl" aria-label="VRM renderer">
             <VrmRenderer
               source={vrmSource}
+              control={avatarControl}
               onLoaded={handleVrmLoaded}
               onError={handleVrmError}
             />
@@ -521,6 +533,51 @@ export function Studio() {
             >
               Delete selected VRM
             </button>
+            <select
+              className="panel-button"
+              aria-label="Avatar pose"
+              value={avatarControl.pose}
+              onChange={(event) =>
+                setAvatarControl((current) => ({
+                  ...current,
+                  pose: event.target.value as AvatarControlState['pose'],
+                }))
+              }
+            >
+              {avatarPoses.map((pose) => (
+                <option key={pose}>{pose}</option>
+              ))}
+            </select>
+            <select
+              className="panel-button"
+              aria-label="Avatar motion"
+              value={avatarControl.motion}
+              onChange={(event) =>
+                setAvatarControl((current) => ({
+                  ...current,
+                  motion: event.target.value as AvatarControlState['motion'],
+                }))
+              }
+            >
+              {avatarMotions.map((motion) => (
+                <option key={motion}>{motion}</option>
+              ))}
+            </select>
+            <select
+              className="panel-button col-span-2"
+              aria-label="Avatar emotion"
+              value={avatarControl.emotion}
+              onChange={(event) =>
+                setAvatarControl((current) => ({
+                  ...current,
+                  emotion: event.target.value as AvatarControlState['emotion'],
+                }))
+              }
+            >
+              {avatarEmotions.map((emotion) => (
+                <option key={emotion}>{emotion}</option>
+              ))}
+            </select>
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {vrmStatus}
             </p>

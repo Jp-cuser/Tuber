@@ -25,6 +25,22 @@ foundation without bundling or copying any character asset.
 - Unit tests use an IndexedDB-compatible implementation to verify the full
   save/list/read/delete lifecycle and selected-model persistence.
 
+## AVATAR-003 VRM pose, motion, and emotion
+
+- Typed, renderer-independent controls define neutral, wave, and confident
+  poses; still and idle motion; and neutral, happy, sad, angry, and surprised
+  emotions.
+- Humanoid normalized bones receive deterministic pose rotations. Idle motion
+  adds subtle torso/head movement and automatic blinking; wave motion animates
+  the lower arm over time.
+- Expressions use the VRM expression manager and are reset every frame before
+  applying the selected preset, preventing stale emotion weights.
+- Missing optional bones and expression managers degrade safely. Controls update
+  through a ref so changing pose or emotion does not reload the model or recreate
+  the WebGL renderer.
+- Pure animation tests verify still, wave, and blink frames; Studio tests verify
+  all three user controls.
+
 ## Dependencies added
 
 - `three`
@@ -35,4 +51,4 @@ foundation without bundling or copying any character asset.
 
 - Format, lint, type checking, unit tests, integration tests, and production
   build pass at this checkpoint.
-- Unit total: 28 suites and 165 tests.
+- Unit total: 29 suites and 169 tests.

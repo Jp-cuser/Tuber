@@ -44,6 +44,22 @@ describe('Home', () => {
     ).toBeInTheDocument();
   });
 
+  it('changes avatar pose, motion, and emotion controls', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    const pose = screen.getByLabelText('Avatar pose');
+    const motion = screen.getByLabelText('Avatar motion');
+    const emotion = screen.getByLabelText('Avatar emotion');
+
+    fireEvent.change(pose, { target: { value: 'wave' } });
+    fireEvent.change(motion, { target: { value: 'still' } });
+    fireEvent.change(emotion, { target: { value: 'happy' } });
+
+    expect(pose).toHaveValue('wave');
+    expect(motion).toHaveValue('still');
+    expect(emotion).toHaveValue('happy');
+  });
+
   it('sends chat history to the AI API and renders the response', async () => {
     useSettingsStore.setState({
       reasoningEnabled: true,
