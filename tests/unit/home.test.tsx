@@ -1,10 +1,13 @@
 import { TextDecoder } from 'node:util';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Home from '@/pages/index';
+import { useSettingsStore } from '@/features/settings/store';
+import { defaultSettings } from '@/features/settings/types';
 
 describe('Home', () => {
   beforeEach(() => {
     localStorage.clear();
+    useSettingsStore.setState(defaultSettings);
     Object.defineProperty(navigator, 'language', {
       configurable: true,
       value: 'ja-JP',
@@ -42,6 +45,12 @@ describe('Home', () => {
   });
 
   it('sends chat history to the AI API and renders the response', async () => {
+    useSettingsStore.setState({
+      reasoningEnabled: true,
+      reasoningEffort: 'high',
+      reasoningTokenBudget: 2048,
+      reasoningVisible: true,
+    });
     Object.defineProperty(globalThis, 'fetch', {
       configurable: true,
       value: jest.fn().mockResolvedValue({
@@ -52,7 +61,7 @@ describe('Home', () => {
           getReader: () => {
             const chunks = [
               Buffer.from(
-                `data: ${JSON.stringify({ choices: [{ delta: { content: 'Generated response' } }] })}\n\ndata: [DONE]\n\n`,
+                `data: ${JSON.stringify({ choices: [{ delta: { reasoning_content: 'Reasoning trace', content: 'Generated response' } }] })}\n\ndata: [DONE]\n\n`,
               ),
             ];
             return {
@@ -86,5 +95,11 @@ describe('Home', () => {
         body: expect.stringContaining('Hello AI'),
       }),
     );
+    const body = (globalThis.fetch as jest.Mock).mock.calls[0][1]
+      .body as string;
+    expect(JSON.parse(body)).toMatchObject({
+      reasoning: { enabled: true, effort: 'high', tokenBudget: 2048 },
+    });
+    expect(screen.getByText('Reasoning trace')).toBeInTheDocument();
   });
 });

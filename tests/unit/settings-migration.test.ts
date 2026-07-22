@@ -13,14 +13,26 @@ describe('migrateSettings', () => {
         state: { theme: 'forest', chatWidth: 480 },
       }),
     ).toMatchObject({
-      version: 3,
+      version: 4,
       theme: 'forest',
       chatWidth: 480,
       language: 'ja',
       aiProvider: 'openai',
       aiModel: 'gpt-4o-mini',
       historyLimit: 20,
+      reasoningEnabled: false,
+      reasoningEffort: 'medium',
+      reasoningTokenBudget: 1024,
+      reasoningVisible: false,
     });
+  });
+
+  it('validates imported reasoning configuration', () => {
+    expect(
+      migrateSettings({
+        state: { reasoningEffort: 'invalid', reasoningTokenBudget: 1 },
+      }),
+    ).toMatchObject({ reasoningEffort: 'medium', reasoningTokenBudget: 1024 });
   });
 
   it('rejects an out-of-range imported history limit', () => {

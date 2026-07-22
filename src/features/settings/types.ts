@@ -68,12 +68,23 @@ export type BackgroundMode =
   | 'green';
 export type AssistantStyle = 'bubble' | 'borderless';
 export type ChatDesign = 'glass' | 'classic';
+export type ReasoningEffort =
+  | 'none'
+  | 'minimal'
+  | 'low'
+  | 'medium'
+  | 'high'
+  | 'xhigh';
 
 export interface SettingsState {
-  version: 3;
+  version: 4;
   aiProvider: import('@/features/ai/types').AiProvider;
   aiModel: string;
   historyLimit: number;
+  reasoningEnabled: boolean;
+  reasoningEffort: ReasoningEffort;
+  reasoningTokenBudget: number;
+  reasoningVisible: boolean;
   theme: Theme;
   language: Language;
   controlsVisible: boolean;
@@ -96,10 +107,14 @@ export interface SettingsState {
 }
 
 export const defaultSettings: SettingsState = {
-  version: 3,
+  version: 4,
   aiProvider: 'openai',
   aiModel: 'gpt-4o-mini',
   historyLimit: 20,
+  reasoningEnabled: false,
+  reasoningEffort: 'medium',
+  reasoningTokenBudget: 1024,
+  reasoningVisible: false,
   theme: 'default',
   language: 'ja',
   controlsVisible: true,

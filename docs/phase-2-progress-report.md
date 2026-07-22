@@ -28,3 +28,10 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - Active webcam and screen-capture backgrounds expose their current video frame to the same attachment pipeline.
 - Frames are scaled to at most 768 pixels, JPEG-compressed, and then processed by the shared size/type validation.
 - Client and server validation prevents unsupported or oversized payloads; capture readiness and encoding failures are surfaced safely.
+
+## AI-019 reasoning mode and metadata
+
+- Settings persist reasoning enablement, effort (`none` through `xhigh`), token budget, and metadata visibility with validated migration defaults.
+- Requests carry the shared reasoning contract into compatible adapters.
+- Provider-specific streamed reasoning deltas are accumulated separately from answer text and exposed in collapsible message metadata.
+- Unit coverage verifies request settings, streamed metadata display, provider normalization, and invalid imported values.

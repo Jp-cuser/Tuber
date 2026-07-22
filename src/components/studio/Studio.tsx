@@ -177,6 +177,11 @@ export function Studio() {
           model: settings.aiModel.trim(),
           systemPrompt: preset.prompt,
           messages: requestMessages,
+          reasoning: {
+            enabled: settings.reasoningEnabled,
+            effort: settings.reasoningEffort,
+            tokenBudget: settings.reasoningTokenBudget,
+          },
         },
         controller.signal,
       );
@@ -418,6 +423,16 @@ export function Studio() {
                         className="mt-2 max-h-32 rounded-lg object-contain"
                       />
                     ))}
+                {settings.reasoningVisible && message.reasoning && (
+                  <details className="mt-2 rounded-lg bg-black/20 p-2 text-xs text-white/65">
+                    <summary className="cursor-pointer font-semibold">
+                      Reasoning
+                    </summary>
+                    <pre className="mt-2 whitespace-pre-wrap font-sans">
+                      {message.reasoning}
+                    </pre>
+                  </details>
+                )}
               </div>
             ))}
           </div>

@@ -119,6 +119,52 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             maxLength={200}
           />
         </label>
+        <fieldset className="rounded-xl border border-white/10 p-4">
+          <legend className="px-2 font-semibold">Reasoning</legend>
+          <Toggle
+            label="Enable reasoning"
+            checked={store.reasoningEnabled}
+            onChange={(value) => update('reasoningEnabled', value)}
+          />
+          <Toggle
+            label="Show reasoning metadata"
+            checked={store.reasoningVisible}
+            onChange={(value) => update('reasoningVisible', value)}
+          />
+          <Select
+            label="Reasoning effort"
+            value={store.reasoningEffort}
+            onChange={(value) =>
+              update(
+                'reasoningEffort',
+                value as SettingsState['reasoningEffort'],
+              )
+            }
+          >
+            {['none', 'minimal', 'low', 'medium', 'high', 'xhigh'].map(
+              (effort) => (
+                <option value={effort} key={effort}>
+                  {effort}
+                </option>
+              ),
+            )}
+          </Select>
+          <label className="mt-3 grid gap-1 text-sm">
+            <span className="text-white/65">Reasoning token budget</span>
+            <input
+              type="number"
+              min={128}
+              max={32768}
+              className="rounded-lg border border-white/15 bg-slate-900 px-3 py-2"
+              value={store.reasoningTokenBudget}
+              onChange={(event) => {
+                const value = Number(event.target.value);
+                if (Number.isInteger(value) && value >= 128 && value <= 32768)
+                  update('reasoningTokenBudget', value);
+              }}
+            />
+          </label>
+        </fieldset>
         <label className="grid gap-1 text-sm">
           <span className="text-white/65">Maximum history messages</span>
           <input
