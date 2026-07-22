@@ -1,6 +1,24 @@
-# Phase 2 Progress Report
+# Phase 2 Completion Report
 
-Phase 2 remains in progress. This report records completed evidence without claiming completion for provider rows that still require final documentation and full phase gates.
+Phase 2 is complete. All AI provider, gateway, advanced-input, and short-term
+memory rows have implementation, error handling, tests, documentation, passing
+quality gates, and recorded evidence.
+
+## Matrix IDs addressed
+
+`AI-001` through `AI-020` and `MEM-001`.
+
+## Provider adapters
+
+- OpenAI, xAI, Groq, Mistral AI, Perplexity, Fireworks, DeepSeek, OpenRouter,
+  and LM Studio share the OpenAI-compatible request and normalization contract.
+- Anthropic, Google Gemini, Azure OpenAI, Cohere, Ollama, and Dify use native
+  request adapters for their distinct authentication, message, streaming, and
+  response formats.
+- Hosted endpoints require HTTPS and credentials remain server-only. LM Studio
+  and Ollama default to loopback-only URLs. Azure resource hosts are validated.
+- `docs/ai-providers.md` and `.env.example` record every supported provider's
+  configuration and default endpoint.
 
 ## MEM-001 short-term history
 
@@ -12,9 +30,13 @@ Phase 2 remains in progress. This report records completed evidence without clai
 
 ## Current verification
 
-- Format, lint, type checking, unit tests, integration tests, and production build pass at this checkpoint.
-- The Windows E2E runner now owns the Next.js server job explicitly, so both Chromium cases pass and the process terminates cleanly.
-- Final provider parity review remains outstanding.
+- `npm run format:check`: passed.
+- `npm run lint`: passed with zero warnings.
+- `npm run typecheck`: passed.
+- `npm test`: 26 suites and 159 tests passed.
+- `npm run test:integration`: 3 suites and 7 tests passed.
+- `npm run build`: passed.
+- `npm run test:e2e`: 2 Chromium tests passed.
 
 ## AI-016 Custom API
 
@@ -49,3 +71,36 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - The chat exposes cancellation while generation is active and records complete, cancelled, and error states without discarding partial text.
 - Abort signals propagate through the browser request, response reader, API route, gateway, and provider adapter; disconnects explicitly cancel upstream readers.
 - Unit, adapter-contract, integration-disconnect, and Chromium UI tests pass.
+
+## Files changed for finalization
+
+- `.env.example`
+- `README.md`
+- `docs/ai-providers.md`
+- `docs/phase-2-progress-report.md`
+- `tests/unit/ai-server-config.test.ts`
+- `FEATURE_MATRIX.md`
+
+## Design decisions
+
+- Provider credentials and endpoints remain server-owned environment settings.
+- Provider-specific wire formats stay behind the shared adapter interface.
+- OpenAI-compatible services reuse one adapter while retaining explicit registry
+  entries, configuration names, and parameterized contract coverage.
+- Local model endpoints remain loopback-only by default.
+
+## Dependencies added
+
+None.
+
+## Unresolved risks
+
+- Contract tests use deterministic HTTP fixtures; real hosted-provider smoke
+  tests require user-supplied credentials and may vary with upstream API changes.
+- Multimodal and reasoning support still depends on the selected model's actual
+  capabilities, even when the provider supports the feature family.
+
+## Next recommended phase
+
+Phase 3: implement the VRM avatar runtime, model loading, animation, expression,
+gaze, and lip-sync matrix rows without copying baseline assets or visual design.

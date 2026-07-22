@@ -5,6 +5,26 @@ import {
 import { AppError } from '@/lib/errors/app-error';
 
 describe('AI server configuration', () => {
+  it.each([
+    ['xai', 'XAI', 'https://api.x.ai/v1'],
+    ['groq', 'GROQ', 'https://api.groq.com/openai/v1'],
+    ['cohere', 'COHERE', 'https://api.cohere.com/v2'],
+    ['mistralai', 'MISTRALAI', 'https://api.mistral.ai/v1'],
+    ['perplexity', 'PERPLEXITY', 'https://api.perplexity.ai'],
+    ['fireworks', 'FIREWORKS', 'https://api.fireworks.ai/inference/v1'],
+    ['deepseek', 'DEEPSEEK', 'https://api.deepseek.com'],
+    ['openrouter', 'OPENROUTER', 'https://openrouter.ai/api/v1'],
+  ] as const)(
+    'loads %s from its documented environment name',
+    (provider, environmentName, baseUrl) => {
+      expect(
+        getAiProviderConfig(provider, {
+          [`AI_${environmentName}_API_KEY`]: 'server-secret',
+        }),
+      ).toMatchObject({ provider, apiKey: 'server-secret', baseUrl });
+    },
+  );
+
   it('loads hosted-provider secrets only from the server environment', () => {
     expect(
       getAiProviderConfig('openai', {
