@@ -38,6 +38,12 @@ import {
   avatarPoses,
   type AvatarControlState,
 } from '@/features/avatar/control';
+import {
+  defaultAvatarPresentation,
+  readAvatarPresentation,
+  writeAvatarPresentation,
+  type AvatarPresentation,
+} from '@/features/avatar/presentation';
 
 const VrmRenderer = dynamic(
   () => import('./VrmRenderer').then((module) => module.VrmRenderer),
@@ -81,6 +87,8 @@ export function Studio() {
     motion: 'idle',
     emotion: 'neutral',
   });
+  const [avatarPresentation, setAvatarPresentation] =
+    useState<AvatarPresentation>(defaultAvatarPresentation);
   const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
   const handleVrmLoaded = useCallback(
     () => setVrmStatus('VRM model ready'),
@@ -123,6 +131,17 @@ export function Studio() {
     document.documentElement.dir = settings.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = settings.language;
   }, [i18n, settings.language]);
+  useEffect(() => setAvatarPresentation(readAvatarPresentation()), []);
+  const updateAvatarPresentation = <Key extends keyof AvatarPresentation>(
+    key: Key,
+    value: AvatarPresentation[Key],
+  ) => {
+    setAvatarPresentation((current) => {
+      const next = { ...current, [key]: value };
+      writeAvatarPresentation(next);
+      return next;
+    });
+  };
   const selectVrm = useCallback(async (id: string) => {
     if (!id) {
       setSelectedVrmId('');
@@ -424,6 +443,7 @@ export function Studio() {
             <VrmRenderer
               source={vrmSource}
               control={avatarControl}
+              presentation={avatarPresentation}
               onLoaded={handleVrmLoaded}
               onError={handleVrmError}
             />
@@ -578,6 +598,129 @@ export function Studio() {
                 <option key={emotion}>{emotion}</option>
               ))}
             </select>
+            <label className="col-span-2 text-xs text-white/70">
+              Position X: {avatarPresentation.positionX.toFixed(1)}
+              <input
+                className="w-full"
+                aria-label="Avatar position X"
+                type="range"
+                min="-3"
+                max="3"
+                step="0.1"
+                disabled={avatarPresentation.fixedPosition}
+                value={avatarPresentation.positionX}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'positionX',
+                    event.target.valueAsNumber,
+                  )
+                }
+              />
+            </label>
+            <label className="col-span-2 text-xs text-white/70">
+              Position Y: {avatarPresentation.positionY.toFixed(1)}
+              <input
+                className="w-full"
+                aria-label="Avatar position Y"
+                type="range"
+                min="-3"
+                max="3"
+                step="0.1"
+                disabled={avatarPresentation.fixedPosition}
+                value={avatarPresentation.positionY}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'positionY',
+                    event.target.valueAsNumber,
+                  )
+                }
+              />
+            </label>
+            <label className="col-span-2 text-xs text-white/70">
+              Rotation: {avatarPresentation.rotationY.toFixed(2)}
+              <input
+                className="w-full"
+                aria-label="Avatar rotation"
+                type="range"
+                min={-Math.PI}
+                max={Math.PI}
+                step="0.05"
+                disabled={avatarPresentation.fixedPosition}
+                value={avatarPresentation.rotationY}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'rotationY',
+                    event.target.valueAsNumber,
+                  )
+                }
+              />
+            </label>
+            <label className="col-span-2 text-xs text-white/70">
+              Scale: {avatarPresentation.scale.toFixed(2)}
+              <input
+                className="w-full"
+                aria-label="Avatar scale"
+                type="range"
+                min="0.25"
+                max="3"
+                step="0.05"
+                disabled={avatarPresentation.fixedPosition}
+                value={avatarPresentation.scale}
+                onChange={(event) =>
+                  updateAvatarPresentation('scale', event.target.valueAsNumber)
+                }
+              />
+            </label>
+            <label className="col-span-2 text-xs text-white/70">
+              Ambient light: {avatarPresentation.ambientIntensity.toFixed(1)}
+              <input
+                className="w-full"
+                aria-label="Avatar ambient light"
+                type="range"
+                min="0"
+                max="5"
+                step="0.1"
+                value={avatarPresentation.ambientIntensity}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'ambientIntensity',
+                    event.target.valueAsNumber,
+                  )
+                }
+              />
+            </label>
+            <label className="col-span-2 text-xs text-white/70">
+              Key light: {avatarPresentation.keyIntensity.toFixed(1)}
+              <input
+                className="w-full"
+                aria-label="Avatar key light"
+                type="range"
+                min="0"
+                max="8"
+                step="0.1"
+                value={avatarPresentation.keyIntensity}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'keyIntensity',
+                    event.target.valueAsNumber,
+                  )
+                }
+              />
+            </label>
+            <label className="col-span-2 flex items-center gap-2 text-xs text-white/70">
+              <input
+                aria-label="Lock avatar position"
+                type="checkbox"
+                checked={avatarPresentation.fixedPosition}
+                onChange={(event) =>
+                  updateAvatarPresentation(
+                    'fixedPosition',
+                    event.target.checked,
+                  )
+                }
+              />
+              Lock transform position
+            </label>
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {vrmStatus}
             </p>

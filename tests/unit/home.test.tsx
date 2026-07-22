@@ -60,6 +60,23 @@ describe('Home', () => {
     expect(emotion).toHaveValue('happy');
   });
 
+  it('persists avatar transforms and locks position controls', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    const position = screen.getByLabelText('Avatar position X');
+    const lock = screen.getByLabelText('Lock avatar position');
+
+    fireEvent.change(position, { target: { value: '1.5' } });
+    expect(position).toHaveValue('1.5');
+    expect(localStorage.getItem('local-ai-tuber-vrm-presentation')).toContain(
+      '"positionX":1.5',
+    );
+
+    fireEvent.click(lock);
+    expect(lock).toBeChecked();
+    expect(position).toBeDisabled();
+  });
+
   it('sends chat history to the AI API and renders the response', async () => {
     useSettingsStore.setState({
       reasoningEnabled: true,

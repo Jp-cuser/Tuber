@@ -14,10 +14,12 @@ import {
   type AvatarBone,
   type AvatarControlState,
 } from '@/features/avatar/control';
+import type { AvatarPresentation } from '@/features/avatar/presentation';
 
 interface VrmRendererProps {
   source: string;
   control: AvatarControlState;
+  presentation: AvatarPresentation;
   onLoaded?: () => void;
   onError?: (message: string) => void;
 }
@@ -25,15 +27,20 @@ interface VrmRendererProps {
 export function VrmRenderer({
   source,
   control,
+  presentation,
   onLoaded,
   onError,
 }: VrmRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlRef = useRef(control);
+  const presentationRef = useRef(presentation);
 
   useEffect(() => {
     controlRef.current = control;
   }, [control]);
+  useEffect(() => {
+    presentationRef.current = presentation;
+  }, [presentation]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -50,7 +57,8 @@ export function VrmRenderer({
     const scene = new Scene();
     const camera = new PerspectiveCamera(30, 1, 0.1, 20);
     camera.position.set(0, 1.35, 3.2);
-    scene.add(new AmbientLight(0xffffff, 1.5));
+    const ambientLight = new AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
     const keyLight = new DirectionalLight(0xffffff, 2.5);
     keyLight.position.set(1, 2, 3);
     scene.add(keyLight);
@@ -74,6 +82,12 @@ export function VrmRenderer({
       const delta = clock.getDelta();
       elapsed += delta;
       if (model) {
+        const view = presentationRef.current;
+        model.scene.position.set(view.positionX, view.positionY, 0);
+        model.scene.rotation.y = Math.PI + view.rotationY;
+        model.scene.scale.setScalar(view.scale);
+        ambientLight.intensity = view.ambientIntensity;
+        keyLight.intensity = view.keyIntensity;
         const avatarFrame = computeAvatarFrame(controlRef.current, elapsed);
         for (const [bone, rotation] of Object.entries(avatarFrame.bones)) {
           const node = model.humanoid?.getNormalizedBoneNode(

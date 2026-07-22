@@ -70,6 +70,9 @@ the last selection is restored locally and models can be deleted from the panel.
 The same panel provides pose, idle-motion, and emotion controls. These controls
 use normalized humanoid bones and VRM expressions, so unsupported optional bones
 or expressions are ignored safely by the renderer.
+Position, rotation, scale, ambient lighting, and key lighting are adjustable and
+stored locally. Locking the transform disables accidental position changes while
+keeping lighting controls available.
 
 ## Baseline and parity
 

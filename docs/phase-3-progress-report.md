@@ -41,6 +41,18 @@ foundation without bundling or copying any character asset.
 - Pure animation tests verify still, wave, and blink frames; Studio tests verify
   all three user controls.
 
+## AVATAR-004 VRM lighting, transform, and fixed position
+
+- Studio controls adjust horizontal/vertical position, Y rotation, uniform
+  scale, ambient-light intensity, and directional key-light intensity without
+  recreating the renderer or reloading the model.
+- Transform ranges are runtime-validated and saved locally. Malformed, partial,
+  wrong-type, and out-of-range stored values fall back to safe defaults.
+- Position locking disables position, rotation, and scale inputs while leaving
+  lighting adjustable; the lock and all values survive page reloads.
+- Unit tests cover valid persistence and invalid storage recovery. Studio tests
+  verify transform persistence and the lock's disabled-control behavior.
+
 ## Dependencies added
 
 - `three`
@@ -51,4 +63,4 @@ foundation without bundling or copying any character asset.
 
 - Format, lint, type checking, unit tests, integration tests, and production
   build pass at this checkpoint.
-- Unit total: 29 suites and 169 tests.
+- Unit total: 30 suites and 174 tests.
