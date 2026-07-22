@@ -8,6 +8,7 @@ export interface SilenceMonitorOptions {
   threshold?: number;
   silenceTimeoutMs?: number;
   sampleIntervalMs?: number;
+  repeat?: boolean;
   onStatus: (status: SilenceMonitorStatus) => void;
   onSilence: () => void;
 }
@@ -22,6 +23,7 @@ export class SilenceDetector {
       Pick<SilenceMonitorOptions, 'threshold' | 'silenceTimeoutMs'>
     > &
       Pick<SilenceMonitorOptions, 'onStatus' | 'onSilence'>,
+    private readonly repeat = false,
   ) {}
 
   sample(level: number, now: number): void {
@@ -43,8 +45,13 @@ export class SilenceDetector {
       speechDetected: this.speechDetected,
     });
     if (silenceProgress >= 1) {
-      this.completed = true;
       this.options.onSilence();
+      if (this.repeat) {
+        this.speechDetected = false;
+        this.silentSince = undefined;
+      } else {
+        this.completed = true;
+      }
     }
   }
 }
@@ -66,12 +73,15 @@ export class BrowserSilenceMonitor {
     analyser.fftSize = 512;
     this.context.createMediaStreamSource(this.stream).connect(analyser);
     const samples = new Uint8Array(analyser.fftSize);
-    const detector = new SilenceDetector({
-      threshold: this.options.threshold ?? 0.035,
-      silenceTimeoutMs: this.options.silenceTimeoutMs ?? 2_000,
-      onStatus: this.options.onStatus,
-      onSilence: this.options.onSilence,
-    });
+    const detector = new SilenceDetector(
+      {
+        threshold: this.options.threshold ?? 0.035,
+        silenceTimeoutMs: this.options.silenceTimeoutMs ?? 2_000,
+        onStatus: this.options.onStatus,
+        onSilence: this.options.onSilence,
+      },
+      this.options.repeat,
+    );
     this.timer = setInterval(() => {
       analyser.getByteTimeDomainData(samples);
       let sum = 0;

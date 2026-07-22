@@ -64,7 +64,7 @@
 | STT-001      | Speech Input    | Browser SpeechRecognition                          | Required    | Phase 5  | Done        | Adapter; interim/final transcript UI; permission/errors/timeouts; contract and UI tests  |
 | STT-002      | Speech Input    | Whisper transcription models                       | Required    | Phase 5  | Done        | Server-only adapter/API; 3 models; validation; contract, integration, and UI tests       |
 | STT-003      | Speech Input    | Silence detection and progress                     | Required    | Phase 5  | Done        | Web Audio RMS monitor; speech-gated timeout/reset; level/progress UI; unit and UI tests  |
-| STT-004      | Speech Input    | Continuous microphone                              | Required    | Phase 5  | In Progress | Continuous restart/explicit stop adapter and UI toggle; silence/exclusivity pending      |
+| STT-004      | Speech Input    | Continuous microphone                              | Required    | Phase 5  | Done        | Restart/stop lifecycle; repeated silence segments; cleanup; contract and UI tests        |
 | TTS-001      | TTS             | VOICEVOX                                           | Required    | Phase 6  | Not Started |                                                                                          |
 | TTS-002      | TTS             | Koeiromap                                          | Required    | Phase 6  | Not Started |                                                                                          |
 | TTS-003      | TTS             | Google Text-to-Speech                              | Required    | Phase 6  | Not Started |                                                                                          |

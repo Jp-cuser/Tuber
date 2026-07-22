@@ -359,11 +359,17 @@ export function Studio() {
       setSpeechStatus('Starting microphone');
       const monitor = new BrowserSilenceMonitor({
         silenceTimeoutMs: 2_000,
+        repeat: continuousMicrophone,
         onStatus: ({ level, silenceProgress: progress }) => {
           setMicrophoneLevel(level);
           setSilenceProgress(progress);
         },
         onSilence: () => {
+          if (continuousMicrophone) {
+            setSilenceProgress(0);
+            setSpeechStatus('Listening after silence');
+            return;
+          }
           speechRecognition.current?.stop();
           speechRecognition.current = undefined;
           silenceMonitor.current?.stop();

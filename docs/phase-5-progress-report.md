@@ -1,7 +1,7 @@
 # Phase 5 Progress Report
 
-Phase 5 is in progress. The first checkpoint implements browser-native speech
-recognition without sending microphone audio through the application server.
+Phase 5 is complete. Browser-native recognition and server-side Whisper input
+share safe microphone lifecycle, validation, and user-visible status handling.
 
 ## STT-001 Browser SpeechRecognition
 
@@ -27,13 +27,15 @@ recognition without sending microphone audio through the application server.
 - Contract and integration fixtures verify the multipart provider request and
   protected application route.
 
-## STT-004 continuous microphone foundation
+## STT-004 continuous microphone
 
 - Continuous mode restarts after normal recognition end and preserves confirmed
   transcript text across segments.
 - Explicit stop and component cleanup prevent automatic restart and clear timers.
-- Completion still requires silence progress/detection and mutual exclusion with
-  later Realtime and Audio modes.
+- Repeated speech/silence segments remain active until explicit stop; every
+  segment resets silence monitoring without reacquiring the microphone.
+- Component cleanup, explicit stop, permission errors, and recognition end all
+  release microphone resources.
 
 ## STT-003 silence detection and progress
 
@@ -47,7 +49,7 @@ recognition without sending microphone audio through the application server.
 
 ## Verification
 
-- Unit: 37 suites and 207 tests pass.
+- Unit: 37 suites and 208 tests pass.
 - Integration: 4 suites and 9 tests pass.
 - Chromium E2E: 7 tests pass, including microphone availability and Whisper
   route handling.
