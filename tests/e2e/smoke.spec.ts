@@ -177,3 +177,30 @@ test('persists and clears a local MotionPNGTuber video pair', async ({
   await expect(page.getByLabel('PNGTuber renderer')).toHaveCount(0);
   await expect(page.getByText('Select idle and talking videos')).toBeVisible();
 });
+
+test('runs the original Live2D bridge fixture lifecycle', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'はじめる' }).click();
+  await page.getByLabel('Avatar mode').selectOption('live2d');
+  await page.getByLabel('Live2D Core script').fill('/live2d-fixture/core.js');
+  await page
+    .getByLabel('Live2D bridge script')
+    .fill('/live2d-fixture/runtime.js');
+  await page
+    .getByLabel('Live2D model manifest')
+    .fill('/live2d-fixture/avatar.model3.json');
+  await page.getByRole('button', { name: 'Load Live2D' }).click();
+
+  const renderer = page.getByLabel('Live2D renderer');
+  await expect(page.getByText('Live2D model ready')).toBeVisible();
+  await expect(renderer).toHaveAttribute(
+    'data-live2d-model',
+    '/live2d-fixture/avatar.model3.json',
+  );
+  await page.getByLabel('Live2D expression').selectOption('happy');
+  await expect(renderer).toHaveAttribute('data-live2d-expression', 'happy');
+  await page.getByLabel('Live2D motion group').fill('TapBody');
+  await page.getByLabel('Live2D motion index').fill('2');
+  await page.getByRole('button', { name: 'Play Live2D motion' }).click();
+  await expect(renderer).toHaveAttribute('data-live2d-motion', 'TapBody:2');
+});

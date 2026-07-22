@@ -17,3 +17,7 @@ independent from the licensed SDK and allows compatible Cubism 3+ runtimes.
 Only same-origin `.js` and `.model3.json` paths are accepted. Remote runtime,
 Core, and model URLs are rejected. Contract tests use an automated fixture
 bridge and do not include any proprietary SDK code or character asset.
+
+The repository's `/live2d-fixture` scripts are an original no-SDK test double.
+They verify browser script loading and bridge commands but do not render or
+redistribute Live2D technology.

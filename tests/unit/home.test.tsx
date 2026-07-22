@@ -120,6 +120,14 @@ describe('Home', () => {
       '/live2d/avatar/avatar.model3.json',
     );
     expect(screen.getByRole('button', { name: 'Load Live2D' })).toBeVisible();
+    fireEvent.change(screen.getByLabelText('Live2D expression'), {
+      target: { value: 'happy' },
+    });
+    fireEvent.change(screen.getByLabelText('Live2D motion group'), {
+      target: { value: 'TapBody' },
+    });
+    expect(screen.getByLabelText('Live2D expression')).toHaveValue('happy');
+    expect(screen.getByLabelText('Live2D motion group')).toHaveValue('TapBody');
   });
 
   it('sends chat history to the AI API and renders the response', async () => {

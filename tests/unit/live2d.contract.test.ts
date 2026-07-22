@@ -39,6 +39,10 @@ describe('Live2D runtime bridge contract', () => {
     ]);
     adapter.destroy();
     expect(model.destroy).toHaveBeenCalledTimes(1);
+    await model.setExpression('happy');
+    await model.playMotion('TapBody', 2);
+    expect(model.setExpression).toHaveBeenCalledWith('happy');
+    expect(model.playMotion).toHaveBeenCalledWith('TapBody', 2);
   });
 
   it.each([

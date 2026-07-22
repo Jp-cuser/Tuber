@@ -120,6 +120,12 @@ export function Studio() {
   });
   const [live2dEnabled, setLive2dEnabled] = useState(false);
   const [live2dStatus, setLive2dStatus] = useState('Live2D is not loaded');
+  const [live2dExpression, setLive2dExpression] = useState('neutral');
+  const [live2dMotion, setLive2dMotion] = useState({
+    group: 'Idle',
+    index: 0,
+    requestId: 0,
+  });
   const handleLive2DReady = useCallback(
     () => setLive2dStatus('Live2D model ready'),
     [],
@@ -560,6 +566,8 @@ export function Studio() {
           <div className="h-[80vh] w-full max-w-3xl">
             <Live2DRenderer
               config={live2dConfig}
+              expression={live2dExpression}
+              motion={live2dMotion}
               onReady={handleLive2DReady}
               onError={handleLive2DError}
             />
@@ -661,6 +669,61 @@ export function Studio() {
                   }}
                 >
                   Load Live2D
+                </button>
+                <select
+                  className="panel-button"
+                  aria-label="Live2D expression"
+                  value={live2dExpression}
+                  onChange={(event) => setLive2dExpression(event.target.value)}
+                >
+                  {['neutral', 'happy', 'sad', 'angry', 'surprised'].map(
+                    (expression) => (
+                      <option key={expression}>{expression}</option>
+                    ),
+                  )}
+                </select>
+                <input
+                  className="panel-button"
+                  aria-label="Live2D motion group"
+                  value={live2dMotion.group}
+                  onChange={(event) =>
+                    setLive2dMotion((current) => ({
+                      ...current,
+                      group: event.target.value,
+                    }))
+                  }
+                />
+                <label className="text-xs text-white/70">
+                  Motion index
+                  <input
+                    className="panel-button mt-1 w-full"
+                    aria-label="Live2D motion index"
+                    type="number"
+                    min="0"
+                    max="99"
+                    value={live2dMotion.index}
+                    onChange={(event) =>
+                      setLive2dMotion((current) => ({
+                        ...current,
+                        index: Math.min(
+                          99,
+                          Math.max(0, event.target.valueAsNumber || 0),
+                        ),
+                      }))
+                    }
+                  />
+                </label>
+                <button
+                  className="panel-button"
+                  disabled={!live2dEnabled}
+                  onClick={() =>
+                    setLive2dMotion((current) => ({
+                      ...current,
+                      requestId: current.requestId + 1,
+                    }))
+                  }
+                >
+                  Play Live2D motion
                 </button>
                 <p
                   className="col-span-2 text-xs text-white/60"
