@@ -130,6 +130,15 @@ describe('Home', () => {
     expect(screen.getByLabelText('Live2D motion group')).toHaveValue('TapBody');
   });
 
+  it('reports unsupported browser speech recognition safely', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    fireEvent.click(screen.getByLabelText('Start microphone'));
+    expect(
+      screen.getByText('Browser speech recognition is not supported'),
+    ).toBeVisible();
+  });
+
   it('sends chat history to the AI API and renders the response', async () => {
     useSettingsStore.setState({
       reasoningEnabled: true,

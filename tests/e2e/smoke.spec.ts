@@ -204,3 +204,22 @@ test('runs the original Live2D bridge fixture lifecycle', async ({ page }) => {
   await page.getByRole('button', { name: 'Play Live2D motion' }).click();
   await expect(renderer).toHaveAttribute('data-live2d-motion', 'TapBody:2');
 });
+
+test('reports browser microphone availability safely', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'SpeechRecognition', {
+      configurable: true,
+      value: undefined,
+    });
+    Object.defineProperty(window, 'webkitSpeechRecognition', {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'はじめる' }).click();
+  await page.getByLabel('Start microphone').click();
+  await expect(
+    page.getByText('Browser speech recognition is not supported'),
+  ).toBeVisible();
+});

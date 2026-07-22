@@ -20,6 +20,10 @@ import {
 import type { Message } from '@/features/ai/types';
 import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
+import {
+  BrowserSpeechRecognition,
+  browserRecognitionSupported,
+} from '@/features/speech/browser-recognition';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
@@ -95,6 +99,9 @@ export function Studio() {
   ]);
   const [generationError, setGenerationError] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [microphoneActive, setMicrophoneActive] = useState(false);
+  const [continuousMicrophone, setContinuousMicrophone] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState('Microphone stopped');
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -177,6 +184,8 @@ export function Studio() {
   const pngTuberIdleInput = useRef<HTMLInputElement>(null);
   const pngTuberTalkingInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
+  const speechRecognition = useRef<BrowserSpeechRecognition>();
+  const speechBaseInput = useRef('');
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
   const preset =
     presets.find((item) => item.id === settings.selectedPreset) ?? presets[0];
@@ -279,6 +288,60 @@ export function Studio() {
       pngTuberTalkingSource,
     ],
   );
+  useEffect(
+    () => () => {
+      speechRecognition.current?.abort();
+    },
+    [],
+  );
+
+  const toggleMicrophone = () => {
+    if (microphoneActive) {
+      speechRecognition.current?.stop();
+      speechRecognition.current = undefined;
+      setMicrophoneActive(false);
+      return;
+    }
+    if (!browserRecognitionSupported()) {
+      setSpeechStatus('Browser speech recognition is not supported');
+      return;
+    }
+    speechBaseInput.current = input.trim();
+    const adapter = new BrowserSpeechRecognition({
+      language: settings.language,
+      continuous: continuousMicrophone,
+      initialTimeoutMs: 10_000,
+      onTranscript: (transcript, final) => {
+        const separator = speechBaseInput.current ? ' ' : '';
+        setInput(`${speechBaseInput.current}${separator}${transcript}`);
+        if (final) {
+          speechBaseInput.current = `${speechBaseInput.current}${separator}${transcript}`;
+          setSpeechStatus('Transcript ready');
+          if (!continuousMicrophone) setMicrophoneActive(false);
+        }
+      },
+      onStatus: (status) => {
+        setSpeechStatus(status);
+        if (
+          status === 'Microphone stopped' ||
+          status.includes('denied') ||
+          status.includes('not supported')
+        )
+          setMicrophoneActive(false);
+      },
+    });
+    speechRecognition.current = adapter;
+    try {
+      adapter.start();
+      setMicrophoneActive(true);
+      setSpeechStatus('Starting microphone');
+    } catch (error) {
+      setSpeechStatus(
+        error instanceof Error ? error.message : 'Unable to start microphone',
+      );
+      setMicrophoneActive(false);
+    }
+  };
 
   const choosePngTuberVideo = (
     event: ChangeEvent<HTMLInputElement>,
@@ -636,6 +699,21 @@ export function Studio() {
               <option value="live2d">Live2D</option>
               <option value="pngtuber">MotionPNGTuber</option>
             </select>
+            <label className="col-span-2 flex items-center gap-2 text-xs text-white/70">
+              <input
+                aria-label="Continuous microphone"
+                type="checkbox"
+                checked={continuousMicrophone}
+                disabled={microphoneActive}
+                onChange={(event) =>
+                  setContinuousMicrophone(event.target.checked)
+                }
+              />
+              Continuous microphone
+            </label>
+            <p className="col-span-2 text-xs text-white/60" aria-live="polite">
+              {speechStatus}
+            </p>
             {avatarMode === 'live2d' && (
               <>
                 {(
@@ -1210,6 +1288,17 @@ export function Studio() {
             disabled={generating}
           >
             +Image
+          </button>
+          <button
+            className="rounded-full bg-white/10 px-4 font-bold"
+            type="button"
+            aria-label={
+              microphoneActive ? 'Stop microphone' : 'Start microphone'
+            }
+            onClick={toggleMicrophone}
+            disabled={generating}
+          >
+            {microphoneActive ? 'Stop mic' : 'Mic'}
           </button>
           {settings.videoVisible &&
             (settings.backgroundMode === 'webcam' ||
