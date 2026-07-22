@@ -4,7 +4,7 @@ import {
   type SettingsState,
 } from './types';
 
-export const SETTINGS_VERSION = 4;
+export const SETTINGS_VERSION = 5;
 
 const reasoningEfforts: ReasoningEffort[] = [
   'none',

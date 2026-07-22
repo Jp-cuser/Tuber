@@ -14,6 +14,7 @@ Phase 2 is in progress. The studio now connects chat to server-side AI adapters,
 - Attach JPEG, PNG, WebP, or GIF images to chat prompts. Attachments are capped at 650 KiB so the base64 request remains below the default API body limit.
 - When webcam or screen-capture background mode is active, use `+Frame` to attach its current frame to the next prompt. Captures are scaled to at most 768 pixels and JPEG-compressed before validation.
 - Reasoning can be enabled per studio profile with effort and token-budget controls. Reasoning deltas are stored separately from the visible answer and can be inspected from each message when metadata display is enabled.
+- Search grounding can be enabled with the optional dynamic-threshold flag. Unsupported provider/model combinations are rejected before an upstream request is made.
 - Settings persist in browser local storage. Export/import uses versioned JSON; reset restores defaults. `NEXT_PUBLIC_DEFAULT_LANGUAGE` and `NEXT_PUBLIC_DEFAULT_THEME` set initial defaults. Set `NEXT_PUBLIC_SETTINGS_ENV_OVERRIDE=true` to keep those two environment values authoritative.
 
 ## Windows quick start

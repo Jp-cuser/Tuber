@@ -107,4 +107,19 @@ describe('AiGateway', () => {
       expect.any(AbortSignal),
     );
   });
+
+  it('rejects search grounding for an unsupported provider or model', async () => {
+    const selected = adapter({
+      supportsSearchGrounding: jest.fn().mockReturnValue(false),
+    });
+    const gateway = new AiGateway(() => selected);
+
+    await expect(
+      gateway.generate({
+        ...request,
+        searchGrounding: { enabled: true, dynamicThreshold: true },
+      }),
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST', status: 400 });
+    expect(selected.generate).not.toHaveBeenCalled();
+  });
 });

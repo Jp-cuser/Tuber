@@ -182,6 +182,10 @@ export function Studio() {
             effort: settings.reasoningEffort,
             tokenBudget: settings.reasoningTokenBudget,
           },
+          searchGrounding: {
+            enabled: settings.searchGroundingEnabled,
+            dynamicThreshold: settings.searchGroundingDynamicThreshold,
+          },
         },
         controller.signal,
       );

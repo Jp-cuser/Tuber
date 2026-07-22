@@ -73,6 +73,16 @@ export class AiGateway {
 
     try {
       const adapter = this.resolveAdapter(parsed.data.provider);
+      if (
+        parsed.data.searchGrounding?.enabled &&
+        !adapter.supportsSearchGrounding(parsed.data.model)
+      ) {
+        throw new AppError(
+          'BAD_REQUEST',
+          400,
+          'Selected provider or model does not support search grounding',
+        );
+      }
       return await operation(adapter, parsed.data, controller.signal);
     } finally {
       clearTimeout(timeout);

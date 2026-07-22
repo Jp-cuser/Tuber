@@ -13,7 +13,7 @@ describe('migrateSettings', () => {
         state: { theme: 'forest', chatWidth: 480 },
       }),
     ).toMatchObject({
-      version: 4,
+      version: 5,
       theme: 'forest',
       chatWidth: 480,
       language: 'ja',
@@ -24,6 +24,8 @@ describe('migrateSettings', () => {
       reasoningEffort: 'medium',
       reasoningTokenBudget: 1024,
       reasoningVisible: false,
+      searchGroundingEnabled: false,
+      searchGroundingDynamicThreshold: true,
     });
   });
 

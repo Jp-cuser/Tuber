@@ -77,7 +77,7 @@ export type ReasoningEffort =
   | 'xhigh';
 
 export interface SettingsState {
-  version: 4;
+  version: 5;
   aiProvider: import('@/features/ai/types').AiProvider;
   aiModel: string;
   historyLimit: number;
@@ -85,6 +85,8 @@ export interface SettingsState {
   reasoningEffort: ReasoningEffort;
   reasoningTokenBudget: number;
   reasoningVisible: boolean;
+  searchGroundingEnabled: boolean;
+  searchGroundingDynamicThreshold: boolean;
   theme: Theme;
   language: Language;
   controlsVisible: boolean;
@@ -107,7 +109,7 @@ export interface SettingsState {
 }
 
 export const defaultSettings: SettingsState = {
-  version: 4,
+  version: 5,
   aiProvider: 'openai',
   aiModel: 'gpt-4o-mini',
   historyLimit: 20,
@@ -115,6 +117,8 @@ export const defaultSettings: SettingsState = {
   reasoningEffort: 'medium',
   reasoningTokenBudget: 1024,
   reasoningVisible: false,
+  searchGroundingEnabled: false,
+  searchGroundingDynamicThreshold: true,
   theme: 'default',
   language: 'ja',
   controlsVisible: true,

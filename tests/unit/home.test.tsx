@@ -50,6 +50,8 @@ describe('Home', () => {
       reasoningEffort: 'high',
       reasoningTokenBudget: 2048,
       reasoningVisible: true,
+      searchGroundingEnabled: true,
+      searchGroundingDynamicThreshold: true,
     });
     Object.defineProperty(globalThis, 'fetch', {
       configurable: true,
@@ -99,6 +101,7 @@ describe('Home', () => {
       .body as string;
     expect(JSON.parse(body)).toMatchObject({
       reasoning: { enabled: true, effort: 'high', tokenBudget: 2048 },
+      searchGrounding: { enabled: true, dynamicThreshold: true },
     });
     expect(screen.getByText('Reasoning trace')).toBeInTheDocument();
   });

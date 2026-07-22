@@ -165,6 +165,25 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             />
           </label>
         </fieldset>
+        <fieldset className="rounded-xl border border-white/10 p-4">
+          <legend className="px-2 font-semibold">Search grounding</legend>
+          <Toggle
+            label="Enable web search grounding"
+            checked={store.searchGroundingEnabled}
+            onChange={(value) => update('searchGroundingEnabled', value)}
+          />
+          <Toggle
+            label="Use dynamic threshold"
+            checked={store.searchGroundingDynamicThreshold}
+            onChange={(value) =>
+              update('searchGroundingDynamicThreshold', value)
+            }
+          />
+          <p className="mt-2 text-xs text-white/50">
+            Available for models whose selected provider supports grounded
+            search.
+          </p>
+        </fieldset>
         <label className="grid gap-1 text-sm">
           <span className="text-white/65">Maximum history messages</span>
           <input

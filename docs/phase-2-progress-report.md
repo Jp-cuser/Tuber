@@ -35,3 +35,10 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - Requests carry the shared reasoning contract into compatible adapters.
 - Provider-specific streamed reasoning deltas are accumulated separately from answer text and exposed in collapsible message metadata.
 - Unit coverage verifies request settings, streamed metadata display, provider normalization, and invalid imported values.
+
+## AI-020 search grounding
+
+- Settings persist search-grounding enablement and the dynamic-threshold flag and include them in the shared AI request.
+- Gemini maps grounded search to its Google Search tool and returns grounding metadata; compatible search-oriented adapters receive the shared option.
+- The gateway checks adapter capability before any upstream request and returns a safe validation error for unsupported provider/model selections.
+- UI request, Gemini contract, and gateway rejection paths are covered by tests.
