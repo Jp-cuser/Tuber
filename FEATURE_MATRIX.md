@@ -53,7 +53,7 @@
 | AI-014       | AI              | Ollama                                             | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-015       | AI              | Dify                                               | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-016       | AI              | Custom API                                         | Required    | Phase 2  | Done        | Server-only mapped adapter; SSRF/redirect/header guards; contract tests; Phase 2 report  |
-| AI-017       | AI              | Streaming and cancellation                         | Required    | Phase 2  | Not Started |                                                                                          |
+| AI-017       | AI              | Streaming and cancellation                         | Required    | Phase 2  | Done        | Secured relay; browser/provider abort chain; partial UI states; unit/integration/E2E     |
 | AI-018       | AI              | Multimodal image/webcam/screen capture             | Required    | Phase 2  | Done        | File and live-frame attachments; size/type guards; adapter contracts; Phase 2 report     |
 | AI-019       | AI              | Reasoning mode and metadata                        | Required    | Phase 2  | Done        | Effort/budget settings; adapter mapping; streamed metadata UI and tests; Phase 2 report  |
 | AI-020       | AI              | Search grounding                                   | Required    | Phase 2  | Done        | Persisted controls; capability gate; Gemini/search adapter mapping and contract tests    |

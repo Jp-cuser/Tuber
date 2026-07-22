@@ -69,4 +69,26 @@ describe('/api/ai/stream handler', () => {
     });
     expect(resolver).not.toHaveBeenCalled();
   });
+
+  it('cancels the upstream stream when the client disconnects', async () => {
+    const cancel = jest.fn();
+    const upstream = new ReadableStream<Uint8Array>({
+      cancel,
+    });
+    const adapter = adapterWith(
+      new Response(upstream, {
+        headers: { 'content-type': 'text/event-stream' },
+      }),
+    );
+    const handler = createStreamHandler(() => adapter);
+    const { req, res } = createMocks({ method: 'POST', body });
+    const pending = handler(req, res);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    req.emit('aborted');
+    await pending;
+
+    expect(cancel).toHaveBeenCalledWith('Client disconnected');
+  });
 });

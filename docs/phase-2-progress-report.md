@@ -42,3 +42,10 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - Gemini maps grounded search to its Google Search tool and returns grounding metadata; compatible search-oriented adapters receive the shared option.
 - The gateway checks adapter capability before any upstream request and returns a safe validation error for unsupported provider/model selections.
 - UI request, Gemini contract, and gateway rejection paths are covered by tests.
+
+## AI-017 streaming and cancellation
+
+- Provider streams are relayed through the secured API and normalized in the browser for incremental chat rendering.
+- The chat exposes cancellation while generation is active and records complete, cancelled, and error states without discarding partial text.
+- Abort signals propagate through the browser request, response reader, API route, gateway, and provider adapter; disconnects explicitly cancel upstream readers.
+- Unit, adapter-contract, integration-disconnect, and Chromium UI tests pass.

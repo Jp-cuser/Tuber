@@ -109,6 +109,42 @@ describe('AiApiClient', () => {
       { format: 'sse', event: undefined, data: 'done' },
     ]);
   });
+
+  it('explicitly cancels the response reader when aborted', async () => {
+    let finishRead:
+      | ((value: { done: true; value: undefined }) => void)
+      | undefined;
+    const cancel = jest.fn(async () =>
+      finishRead?.({ done: true, value: undefined }),
+    );
+    const reader = {
+      read: jest.fn(
+        () =>
+          new Promise<{ done: true; value: undefined }>((resolve) => {
+            finishRead = resolve;
+          }),
+      ),
+      cancel,
+      releaseLock: jest.fn(),
+    };
+    const fetcher = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'text/event-stream' }),
+      body: { getReader: () => reader },
+    } as unknown as Response);
+    const client = new AiApiClient({ fetcher });
+    const controller = new AbortController();
+    const iterator = client.stream(request, controller.signal);
+    const pending = iterator.next();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    controller.abort(new DOMException('cancelled', 'AbortError'));
+
+    await expect(pending).resolves.toMatchObject({ done: true });
+    expect(cancel).toHaveBeenCalledWith(controller.signal.reason);
+  });
 });
 
 describe('AI stream payload parsers', () => {

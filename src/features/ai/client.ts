@@ -104,6 +104,9 @@ export class AiApiClient {
 
     const contentType = response.headers.get('content-type')?.split(';')[0];
     const reader = response.body.getReader();
+    const cancelReader = () => void reader.cancel(signal?.reason);
+    if (signal?.aborted) cancelReader();
+    else signal?.addEventListener('abort', cancelReader, { once: true });
     const decoder = new TextDecoder();
     let buffer = '';
     const separator = contentType === 'text/event-stream' ? '\n\n' : '\n';
@@ -139,6 +142,7 @@ export class AiApiClient {
         }
       }
     } finally {
+      signal?.removeEventListener('abort', cancelReader);
       reader.releaseLock();
     }
   }

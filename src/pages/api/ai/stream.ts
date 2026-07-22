@@ -61,6 +61,7 @@ export function createStreamHandler(
       response.setHeader('Cache-Control', 'no-cache, no-transform');
       response.setHeader('X-Content-Type-Options', 'nosniff');
       reader = upstream.body.getReader();
+      if (controller.signal.aborted) await reader.cancel('Client disconnected');
 
       while (!controller.signal.aborted) {
         const chunk = await reader.read();
