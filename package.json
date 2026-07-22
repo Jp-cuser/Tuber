@@ -17,7 +17,7 @@
     "test": "jest --selectProjects unit",
     "test:watch": "jest --selectProjects unit --watch",
     "test:integration": "jest --selectProjects integration",
-    "test:e2e": "playwright test",
+    "test:e2e": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-e2e.ps1",
     "check:node": "node scripts/check-node-version.mjs"
   },
   "dependencies": {

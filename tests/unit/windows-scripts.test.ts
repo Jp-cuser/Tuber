@@ -21,4 +21,12 @@ describe('Windows scripts', () => {
     expect(launch).toContain('scripts\\open-browser.ps1');
     expect(launch).toContain('exit /b %APP_EXIT%');
   });
+
+  it('E2E runner owns and cleans up its Windows development server', () => {
+    const e2e = script('scripts/run-e2e.ps1');
+    expect(e2e).toContain('Start-Job');
+    expect(e2e).toContain('Stop-Job');
+    expect(e2e).toContain('npm.cmd exec playwright test');
+    expect(e2e).toContain('exit $testExitCode');
+  });
 });

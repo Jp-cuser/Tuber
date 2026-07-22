@@ -13,5 +13,5 @@ Phase 2 remains in progress. This report records completed evidence without clai
 ## Current verification
 
 - Format, lint, type checking, unit tests, integration tests, and production build pass at this checkpoint.
-- The existing Playwright E2E cases started but did not terminate within the 240-second gate timeout; this must be diagnosed before MEM-001 can move from In Progress to Done.
+- The Windows E2E runner now owns the Next.js server job explicitly, so both Chromium cases pass and the process terminates cleanly.
 - Final provider parity review remains outstanding.
