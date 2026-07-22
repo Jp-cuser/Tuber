@@ -26,6 +26,9 @@ export interface TtsOptions {
   languageCode?: string;
   volumeGainDb?: number;
   sdpRatio?: number;
+  tempoDynamics?: number;
+  prePhonemeLength?: number;
+  postPhonemeLength?: number;
 }
 
 export interface AudioPayload {

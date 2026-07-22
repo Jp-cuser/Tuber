@@ -128,6 +128,10 @@ export function Studio() {
   const [styleBertModel, setStyleBertModel] = useState('0');
   const [styleBertStyle, setStyleBertStyle] = useState('Neutral');
   const [styleBertSdpRatio, setStyleBertSdpRatio] = useState(0.2);
+  const [aivisTempoDynamics, setAivisTempoDynamics] = useState(1);
+  const [aivisStyleId, setAivisStyleId] = useState('888753760');
+  const [aivisPrePhoneme, setAivisPrePhoneme] = useState(0.1);
+  const [aivisPostPhoneme, setAivisPostPhoneme] = useState(0.1);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -475,13 +479,23 @@ export function Studio() {
                   pitch: ttsPitch,
                   volumeGainDb: googleVolume,
                 }
-              : {
-                  model: styleBertModel,
-                  speakerId: ttsSpeakerId,
-                  style: styleBertStyle,
-                  sdpRatio: styleBertSdpRatio,
-                  speed: ttsSpeed,
-                },
+              : ttsEngine === 'stylebertvits2'
+                ? {
+                    model: styleBertModel,
+                    speakerId: ttsSpeakerId,
+                    style: styleBertStyle,
+                    sdpRatio: styleBertSdpRatio,
+                    speed: ttsSpeed,
+                  }
+                : {
+                    speakerId: aivisStyleId,
+                    speed: ttsSpeed,
+                    pitch: ttsPitch,
+                    intonation: ttsIntonation,
+                    tempoDynamics: aivisTempoDynamics,
+                    prePhonemeLength: aivisPrePhoneme,
+                    postPhonemeLength: aivisPostPhoneme,
+                  },
       );
       audioPlayback.current?.pause();
       if (audioPlaybackUrl.current)
@@ -932,6 +946,7 @@ export function Studio() {
                 <option value="koeiromap">Koeiromap</option>
                 <option value="google">Google Text-to-Speech</option>
                 <option value="stylebertvits2">Style-Bert-VITS2</option>
+                <option value="aivis_speech">AivisSpeech</option>
               </select>
               {ttsEngine === 'voicevox' ? (
                 <>
@@ -1106,7 +1121,7 @@ export function Studio() {
                     />
                   </label>
                 </>
-              ) : (
+              ) : ttsEngine === 'stylebertvits2' ? (
                 <>
                   <label className="text-xs text-white/70">
                     Model ID
@@ -1175,6 +1190,87 @@ export function Studio() {
                       }
                     />
                   </label>
+                </>
+              ) : (
+                <>
+                  <label className="text-xs text-white/70">
+                    Style ID
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="AivisSpeech style ID"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={aivisStyleId}
+                      onChange={(event) => setAivisStyleId(event.target.value)}
+                    />
+                  </label>
+                  {(
+                    [
+                      [
+                        'AivisSpeech speed',
+                        'Speed',
+                        ttsSpeed,
+                        0.5,
+                        2,
+                        setTtsSpeed,
+                      ],
+                      [
+                        'AivisSpeech pitch',
+                        'Pitch',
+                        ttsPitch,
+                        -1,
+                        1,
+                        setTtsPitch,
+                      ],
+                      [
+                        'AivisSpeech intonation',
+                        'Emotion',
+                        ttsIntonation,
+                        0,
+                        2,
+                        setTtsIntonation,
+                      ],
+                      [
+                        'AivisSpeech tempo dynamics',
+                        'Tempo dynamics',
+                        aivisTempoDynamics,
+                        0,
+                        2,
+                        setAivisTempoDynamics,
+                      ],
+                      [
+                        'AivisSpeech pre phoneme',
+                        'Pre phoneme',
+                        aivisPrePhoneme,
+                        0,
+                        2,
+                        setAivisPrePhoneme,
+                      ],
+                      [
+                        'AivisSpeech post phoneme',
+                        'Post phoneme',
+                        aivisPostPhoneme,
+                        0,
+                        2,
+                        setAivisPostPhoneme,
+                      ],
+                    ] as const
+                  ).map(([label, title, value, min, max, update]) => (
+                    <label key={label} className="text-xs text-white/70">
+                      {title}: {value.toFixed(2)}
+                      <input
+                        className="w-full"
+                        aria-label={label}
+                        type="range"
+                        min={min}
+                        max={max}
+                        step="0.05"
+                        value={value}
+                        onChange={(event) => update(event.target.valueAsNumber)}
+                      />
+                    </label>
+                  ))}
                 </>
               )}
               <button

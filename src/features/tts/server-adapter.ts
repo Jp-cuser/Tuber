@@ -3,6 +3,7 @@ import { VoicevoxAdapter } from './adapters/voicevox';
 import { KoeiromapAdapter } from './adapters/koeiromap';
 import { GoogleTtsAdapter } from './adapters/google';
 import { StyleBertVits2Adapter } from './adapters/stylebertvits2';
+import { AivisSpeechAdapter } from './adapters/aivis-speech';
 import type { TtsAdapter, VoiceEngine } from './types';
 
 export function createServerTtsAdapter(
@@ -30,6 +31,18 @@ export function createServerTtsAdapter(
       baseUrl:
         environment.TTS_STYLEBERTVITS2_BASE_URL ?? 'http://127.0.0.1:5000',
       apiKey: environment.TTS_STYLEBERTVITS2_API_KEY?.trim(),
+      allowedOrigins: new Set(
+        (environment.TTS_LOCAL_ALLOWED_ORIGINS ?? '')
+          .split(',')
+          .map((origin) => origin.trim())
+          .filter(Boolean),
+      ),
+    });
+  }
+  if (engine === 'aivis_speech') {
+    return new AivisSpeechAdapter({
+      baseUrl:
+        environment.TTS_AIVIS_SPEECH_BASE_URL ?? 'http://127.0.0.1:10101',
       allowedOrigins: new Set(
         (environment.TTS_LOCAL_ALLOWED_ORIGINS ?? '')
           .split(',')

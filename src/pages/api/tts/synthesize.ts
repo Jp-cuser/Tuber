@@ -22,6 +22,9 @@ const requestSchema = z.object({
       languageCode: z.string().max(35).optional(),
       volumeGainDb: z.number().min(-96).max(16).optional(),
       sdpRatio: z.number().min(0).max(1).optional(),
+      tempoDynamics: z.number().min(0).max(2).optional(),
+      prePhonemeLength: z.number().min(0).max(10).optional(),
+      postPhonemeLength: z.number().min(0).max(10).optional(),
     })
     .default({}),
 });

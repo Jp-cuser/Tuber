@@ -121,6 +121,11 @@ Style-Bert-VITS2 uses `TTS_STYLEBERTVITS2_BASE_URL` and optional
 SDP ratio, and speaking rate to the recommended `POST /voice` API. Non-loopback
 servers require `TTS_LOCAL_ALLOWED_ORIGINS`.
 
+AivisSpeech uses `TTS_AIVIS_SPEECH_BASE_URL` (default
+`http://127.0.0.1:10101`). Studio controls expose style ID, speed, pitch,
+emotion intensity, tempo dynamics, and pre/post phoneme silence. Remote LAN
+origins must be explicitly allowed.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

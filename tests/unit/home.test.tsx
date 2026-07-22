@@ -91,6 +91,16 @@ describe('Home', () => {
     expect(screen.getByLabelText('Style-Bert-VITS2 SDP ratio')).toHaveValue(
       '0.2',
     );
+    fireEvent.change(screen.getByLabelText('TTS engine'), {
+      target: { value: 'aivis_speech' },
+    });
+    expect(screen.getByLabelText('AivisSpeech style ID')).toHaveValue(
+      888753760,
+    );
+    expect(screen.getByLabelText('AivisSpeech tempo dynamics')).toHaveValue(
+      '1',
+    );
+    expect(screen.getByLabelText('AivisSpeech pre phoneme')).toHaveValue('0.1');
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {

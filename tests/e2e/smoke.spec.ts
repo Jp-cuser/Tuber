@@ -420,3 +420,52 @@ test('sends Style-Bert-VITS2 model and style controls through the protected rout
   await page.getByRole('button', { name: 'Test synthesized speech' }).click();
   await expect(page.getByText('Playing synthesized speech')).toBeVisible();
 });
+
+test('sends AivisSpeech style and timing controls through the protected route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'aivis_speech',
+      text: 'aivis fixture',
+      options: {
+        speakerId: '888753760',
+        speed: 1.2,
+        pitch: 0.1,
+        intonation: 1.3,
+        tempoDynamics: 1.4,
+        prePhonemeLength: 0.2,
+        postPhonemeLength: 0.3,
+      },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'UklGRg==', mimeType: 'audio/wav' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('TTS engine').selectOption('aivis_speech');
+  await page.getByLabel('AivisSpeech speed').fill('1.2');
+  await page.getByLabel('AivisSpeech pitch').fill('0.1');
+  await page.getByLabel('AivisSpeech intonation').fill('1.3');
+  await page.getByLabel('AivisSpeech tempo dynamics').fill('1.4');
+  await page.getByLabel('AivisSpeech pre phoneme').fill('0.2');
+  await page.getByLabel('AivisSpeech post phoneme').fill('0.3');
+  await page.getByLabel('Chat message').fill('aivis fixture');
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});
