@@ -70,7 +70,9 @@ export type AssistantStyle = 'bubble' | 'borderless';
 export type ChatDesign = 'glass' | 'classic';
 
 export interface SettingsState {
-  version: 1;
+  version: 2;
+  aiProvider: import('@/features/ai/types').AiProvider;
+  aiModel: string;
   theme: Theme;
   language: Language;
   controlsVisible: boolean;
@@ -93,7 +95,9 @@ export interface SettingsState {
 }
 
 export const defaultSettings: SettingsState = {
-  version: 1,
+  version: 2,
+  aiProvider: 'openai',
+  aiModel: 'gpt-4o-mini',
   theme: 'default',
   language: 'ja',
   controlsVisible: true,

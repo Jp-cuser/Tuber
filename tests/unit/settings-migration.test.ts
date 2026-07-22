@@ -13,10 +13,12 @@ describe('migrateSettings', () => {
         state: { theme: 'forest', chatWidth: 480 },
       }),
     ).toMatchObject({
-      version: 1,
+      version: 2,
       theme: 'forest',
       chatWidth: 480,
       language: 'ja',
+      aiProvider: 'openai',
+      aiModel: 'gpt-4o-mini',
     });
   });
 });

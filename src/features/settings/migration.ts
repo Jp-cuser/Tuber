@@ -1,6 +1,6 @@
 import { defaultSettings, type SettingsState } from './types';
 
-export const SETTINGS_VERSION = 1;
+export const SETTINGS_VERSION = 2;
 
 export function migrateSettings(persisted: unknown): SettingsState {
   if (!persisted || typeof persisted !== 'object') return defaultSettings;

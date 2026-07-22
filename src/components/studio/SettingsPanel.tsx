@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { exportSettings, useSettingsStore } from '@/features/settings/store';
 import { languageNames } from '@/features/i18n/resources';
+import { providerRegistry } from '@/features/ai/registry';
 import {
   languages,
   presets,
@@ -96,6 +97,28 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
         </button>
       </div>
       <div className="grid gap-5">
+        <Select
+          label="AI provider"
+          value={store.aiProvider}
+          onChange={(value) =>
+            update('aiProvider', value as SettingsState['aiProvider'])
+          }
+        >
+          {[...providerRegistry.values()].map((provider) => (
+            <option value={provider.id} key={provider.id}>
+              {provider.name}
+            </option>
+          ))}
+        </Select>
+        <label className="grid gap-1 text-sm">
+          <span className="text-white/65">AI model</span>
+          <input
+            className="rounded-lg border border-white/15 bg-slate-900 px-3 py-2"
+            value={store.aiModel}
+            onChange={(event) => update('aiModel', event.target.value)}
+            maxLength={200}
+          />
+        </label>
         <Select
           label={t('language')}
           value={store.language}
