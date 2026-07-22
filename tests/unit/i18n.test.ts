@@ -24,6 +24,13 @@ describe('translations', () => {
     expect(nativeTranslationCoverage.en).toBe(1);
   });
 
+  it.each(['ko', 'zh-CN', 'zh-TW'] as const)(
+    '%s has complete native UI coverage',
+    (language) => {
+      expect(nativeTranslationCoverage[language]).toBe(1);
+    },
+  );
+
   it.each(languages.filter((language) => language !== 'ja'))(
     '%s never falls back to Japanese labels',
     (language) => {
