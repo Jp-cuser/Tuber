@@ -125,6 +125,9 @@ export function Studio() {
   const [googleLanguage, setGoogleLanguage] = useState('ja-JP');
   const [googleVoice, setGoogleVoice] = useState('ja-JP-Neural2-B');
   const [googleVolume, setGoogleVolume] = useState(0);
+  const [styleBertModel, setStyleBertModel] = useState('0');
+  const [styleBertStyle, setStyleBertStyle] = useState('Neutral');
+  const [styleBertSdpRatio, setStyleBertSdpRatio] = useState(0.2);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -464,13 +467,21 @@ export function Studio() {
                 speakerY: koeiromapY,
                 style: koeiromapStyle,
               }
-            : {
-                languageCode: googleLanguage,
-                model: googleVoice,
-                speed: ttsSpeed,
-                pitch: ttsPitch,
-                volumeGainDb: googleVolume,
-              },
+            : ttsEngine === 'google'
+              ? {
+                  languageCode: googleLanguage,
+                  model: googleVoice,
+                  speed: ttsSpeed,
+                  pitch: ttsPitch,
+                  volumeGainDb: googleVolume,
+                }
+              : {
+                  model: styleBertModel,
+                  speakerId: ttsSpeakerId,
+                  style: styleBertStyle,
+                  sdpRatio: styleBertSdpRatio,
+                  speed: ttsSpeed,
+                },
       );
       audioPlayback.current?.pause();
       if (audioPlaybackUrl.current)
@@ -920,6 +931,7 @@ export function Studio() {
                 <option value="voicevox">VOICEVOX</option>
                 <option value="koeiromap">Koeiromap</option>
                 <option value="google">Google Text-to-Speech</option>
+                <option value="stylebertvits2">Style-Bert-VITS2</option>
               </select>
               {ttsEngine === 'voicevox' ? (
                 <>
@@ -1026,7 +1038,7 @@ export function Studio() {
                     )}
                   </select>
                 </>
-              ) : (
+              ) : ttsEngine === 'google' ? (
                 <>
                   <label className="text-xs text-white/70">
                     Language
@@ -1090,6 +1102,76 @@ export function Studio() {
                       value={googleVolume}
                       onChange={(event) =>
                         setGoogleVolume(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label className="text-xs text-white/70">
+                    Model ID
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Style-Bert-VITS2 model ID"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={styleBertModel}
+                      onChange={(event) =>
+                        setStyleBertModel(event.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Speaker ID
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Style-Bert-VITS2 speaker ID"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={ttsSpeakerId}
+                      onChange={(event) => setTtsSpeakerId(event.target.value)}
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Style
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Style-Bert-VITS2 style"
+                      value={styleBertStyle}
+                      onChange={(event) =>
+                        setStyleBertStyle(event.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="text-xs text-white/70">
+                    Speed: {ttsSpeed.toFixed(2)}
+                    <input
+                      className="w-full"
+                      aria-label="Style-Bert-VITS2 speed"
+                      type="range"
+                      min="0.25"
+                      max="4"
+                      step="0.05"
+                      value={ttsSpeed}
+                      onChange={(event) =>
+                        setTtsSpeed(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <label className="col-span-2 text-xs text-white/70">
+                    SDP ratio: {styleBertSdpRatio.toFixed(2)}
+                    <input
+                      className="w-full"
+                      aria-label="Style-Bert-VITS2 SDP ratio"
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={styleBertSdpRatio}
+                      onChange={(event) =>
+                        setStyleBertSdpRatio(event.target.valueAsNumber)
                       }
                     />
                   </label>

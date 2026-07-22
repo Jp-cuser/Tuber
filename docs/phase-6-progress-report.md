@@ -28,10 +28,10 @@ contract and completes VOICEVOX end to end.
 
 ## Verification
 
-- Unit: 41 suites and 219 tests pass.
+- Unit: 42 suites and 221 tests pass.
 - Integration: 5 suites and 11 tests pass.
-- Chromium E2E: 10 tests pass, including protected VOICEVOX, Koeiromap, and
-  Google TTS preview playback.
+- Chromium E2E: 11 tests pass, including protected cloud and local TTS preview
+  playback through Style-Bert-VITS2.
 - Format, lint, typecheck, and production build pass.
 
 ## TTS-002 Koeiromap
@@ -54,3 +54,12 @@ contract and completes VOICEVOX end to end.
 - Base64 `audioContent` is normalized to MP3 and `v1/voices` is normalized to
   the shared voice contract.
 - Studio, contract, and Chromium fixtures cover configuration and playback.
+
+## TTS-004 Style-Bert-VITS2
+
+- The adapter uses the official server's recommended `POST /voice` endpoint.
+- Model ID, speaker ID, style, SDP ratio, and speaking rate are validated and
+  mapped to server parameters; speaking rate is converted to inverse `length`.
+- Loopback is the default, non-loopback origins require the local-service
+  allowlist, redirects are rejected, and an optional API key remains server-side.
+- Studio, contract, and Chromium fixtures cover controls and playback routing.

@@ -21,6 +21,7 @@ const requestSchema = z.object({
       speakerY: z.number().min(-10).max(10).optional(),
       languageCode: z.string().max(35).optional(),
       volumeGainDb: z.number().min(-96).max(16).optional(),
+      sdpRatio: z.number().min(0).max(1).optional(),
     })
     .default({}),
 });

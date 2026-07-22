@@ -2,6 +2,7 @@ import { AppError } from '@/lib/errors/app-error';
 import { VoicevoxAdapter } from './adapters/voicevox';
 import { KoeiromapAdapter } from './adapters/koeiromap';
 import { GoogleTtsAdapter } from './adapters/google';
+import { StyleBertVits2Adapter } from './adapters/stylebertvits2';
 import type { TtsAdapter, VoiceEngine } from './types';
 
 export function createServerTtsAdapter(
@@ -22,6 +23,19 @@ export function createServerTtsAdapter(
     return new GoogleTtsAdapter({
       apiKey,
       baseUrl: environment.TTS_GOOGLE_BASE_URL,
+    });
+  }
+  if (engine === 'stylebertvits2') {
+    return new StyleBertVits2Adapter({
+      baseUrl:
+        environment.TTS_STYLEBERTVITS2_BASE_URL ?? 'http://127.0.0.1:5000',
+      apiKey: environment.TTS_STYLEBERTVITS2_API_KEY?.trim(),
+      allowedOrigins: new Set(
+        (environment.TTS_LOCAL_ALLOWED_ORIGINS ?? '')
+          .split(',')
+          .map((origin) => origin.trim())
+          .filter(Boolean),
+      ),
     });
   }
   if (engine !== 'voicevox')

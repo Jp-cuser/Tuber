@@ -80,6 +80,17 @@ describe('Home', () => {
       'ja-JP-Neural2-B',
     );
     expect(screen.getByLabelText('Google TTS speed')).toHaveValue('1');
+    fireEvent.change(screen.getByLabelText('TTS engine'), {
+      target: { value: 'stylebertvits2' },
+    });
+    expect(screen.getByLabelText('Style-Bert-VITS2 model ID')).toHaveValue(0);
+    expect(screen.getByLabelText('Style-Bert-VITS2 speaker ID')).toHaveValue(1);
+    expect(screen.getByLabelText('Style-Bert-VITS2 style')).toHaveValue(
+      'Neutral',
+    );
+    expect(screen.getByLabelText('Style-Bert-VITS2 SDP ratio')).toHaveValue(
+      '0.2',
+    );
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {

@@ -375,3 +375,48 @@ test('sends Google voice and audio controls through the protected route', async 
   await page.getByRole('button', { name: 'Test synthesized speech' }).click();
   await expect(page.getByText('Playing synthesized speech')).toBeVisible();
 });
+
+test('sends Style-Bert-VITS2 model and style controls through the protected route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'stylebertvits2',
+      text: 'style bert fixture',
+      options: {
+        model: '2',
+        speakerId: '1',
+        style: 'Happy',
+        sdpRatio: 0.4,
+        speed: 1.25,
+      },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'UklGRg==', mimeType: 'audio/wav' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('TTS engine').selectOption('stylebertvits2');
+  await page.getByLabel('Style-Bert-VITS2 model ID').fill('2');
+  await page.getByLabel('Style-Bert-VITS2 style').fill('Happy');
+  await page.getByLabel('Style-Bert-VITS2 SDP ratio').fill('0.4');
+  await page.getByLabel('Style-Bert-VITS2 speed').fill('1.25');
+  await page.getByLabel('Chat message').fill('style bert fixture');
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});

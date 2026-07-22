@@ -25,6 +25,7 @@ export interface TtsOptions {
   speakerY?: number;
   languageCode?: string;
   volumeGainDb?: number;
+  sdpRatio?: number;
 }
 
 export interface AudioPayload {
