@@ -26,6 +26,6 @@ Date: 2026-07-22
 
 ## Remaining work
 
-`I18N-001` remains in progress. Japanese, English, Korean, Simplified Chinese, Traditional Chinese, French, Spanish, Portuguese, and Italian now have complete native key coverage. The other 7 languages have localized primary actions with a complete English fallback; their remaining labels must be translated and reviewed before the row can be `Done`.
+`I18N-001` remains in progress. Twelve languages now have complete native key coverage: Japanese, English, Korean, Simplified Chinese, Traditional Chinese, French, Spanish, Portuguese, Italian, German, Russian, and Polish. Vietnamese, Arabic, Hindi, and Thai have localized primary actions with a complete English fallback; their remaining labels must be translated and reviewed before the row can be `Done`.
 
 Phase 2 must not begin until I18N-001 is complete and Phase 1 quality gates pass again.

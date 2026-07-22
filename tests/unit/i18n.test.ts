@@ -24,12 +24,20 @@ describe('translations', () => {
     expect(nativeTranslationCoverage.en).toBe(1);
   });
 
-  it.each(['ko', 'zh-CN', 'zh-TW', 'fr', 'es', 'pt', 'it'] as const)(
-    '%s has complete native UI coverage',
-    (language) => {
-      expect(nativeTranslationCoverage[language]).toBe(1);
-    },
-  );
+  it.each([
+    'ko',
+    'zh-CN',
+    'zh-TW',
+    'fr',
+    'es',
+    'pt',
+    'it',
+    'de',
+    'ru',
+    'pl',
+  ] as const)('%s has complete native UI coverage', (language) => {
+    expect(nativeTranslationCoverage[language]).toBe(1);
+  });
 
   it.each(languages.filter((language) => language !== 'ja'))(
     '%s never falls back to Japanese labels',
