@@ -11,6 +11,7 @@ Phase 2 is in progress. The studio now connects chat to server-side AI adapters,
 - Open settings with the gear button to change language, theme, names, visibility, assistant/chat style, position, width, preset, and Japanese reading preference.
 - Select image/video files as local backgrounds, or request webcam/screen-capture backgrounds. Browser permission denial leaves the rest of the studio usable.
 - Select a local image overlay, click it to toggle placed/modal display, and use presentation mode to hide the input bar.
+- Attach JPEG, PNG, WebP, or GIF images to chat prompts. Attachments are capped at 650 KiB so the base64 request remains below the default API body limit.
 - Settings persist in browser local storage. Export/import uses versioned JSON; reset restores defaults. `NEXT_PUBLIC_DEFAULT_LANGUAGE` and `NEXT_PUBLIC_DEFAULT_THEME` set initial defaults. Set `NEXT_PUBLIC_SETTINGS_ENV_OVERRIDE=true` to keep those two environment values authoritative.
 
 ## Windows quick start

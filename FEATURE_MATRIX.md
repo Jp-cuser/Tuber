@@ -54,7 +54,7 @@
 | AI-015       | AI              | Dify                                               | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-016       | AI              | Custom API                                         | Required    | Phase 2  | Done        | Server-only mapped adapter; SSRF/redirect/header guards; contract tests; Phase 2 report  |
 | AI-017       | AI              | Streaming and cancellation                         | Required    | Phase 2  | Not Started |                                                                                          |
-| AI-018       | AI              | Multimodal image/webcam/screen capture             | Required    | Phase 2  | Not Started |                                                                                          |
+| AI-018       | AI              | Multimodal image/webcam/screen capture             | Required    | Phase 2  | In Progress | Local image attach/preview/validation; webcam and screen frames outstanding              |
 | AI-019       | AI              | Reasoning mode and metadata                        | Required    | Phase 2  | Not Started |                                                                                          |
 | AI-020       | AI              | Search grounding                                   | Required    | Phase 2  | Not Started |                                                                                          |
 | REALTIME-001 | Realtime        | OpenAI/Azure Realtime                              | Required    | Phase 7  | Not Started |                                                                                          |

@@ -21,3 +21,9 @@ Phase 2 remains in progress. This report records completed evidence without clai
 - Custom API configuration is loaded only from server environment variables.
 - Request headers, structured body templates, response text paths, origin allowlisting, manual redirect rejection, and safe streaming normalization are implemented.
 - Contract and configuration tests cover request mapping, redirects, malformed configuration, and the shared NDJSON stream path.
+
+## AI-018 multimodal input
+
+- In progress: local JPEG, PNG, WebP, and GIF files can be validated, previewed, removed, rendered in history, and sent as multimodal message content.
+- Client and server size/type validation prevents unsupported or oversized payloads.
+- Webcam and screen-capture frame attachment remain outstanding, so AI-018 is not Done.

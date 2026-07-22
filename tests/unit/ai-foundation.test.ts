@@ -32,6 +32,26 @@ describe('AI foundation', () => {
       }).success,
     ).toBe(false);
   });
+  it('rejects unsupported server-side image content types', () => {
+    expect(
+      aiRequestSchema.safeParse({
+        provider: 'openai',
+        model: 'model',
+        messages: [
+          {
+            ...message('image'),
+            content: [
+              {
+                type: 'image',
+                data: 'data:image/svg+xml;base64,PHN2Zz4=',
+                mimeType: 'image/svg+xml',
+              },
+            ],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
   it('applies a safe provider timeout default', () => {
     expect(providerConfigSchema.parse({ provider: 'openai' }).timeoutMs).toBe(
       60_000,

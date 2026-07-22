@@ -11,8 +11,10 @@ export const messageSchema = z.object({
         z.object({ type: z.literal('text'), text: z.string() }),
         z.object({
           type: z.literal('image'),
-          data: z.string().min(1),
-          mimeType: z.string().optional(),
+          data: z.string().min(1).max(950_000),
+          mimeType: z
+            .enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            .optional(),
         }),
       ]),
     ),

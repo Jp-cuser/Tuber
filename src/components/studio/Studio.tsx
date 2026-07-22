@@ -11,6 +11,10 @@ import { detectLanguage } from '@/features/i18n/i18n';
 import { AiApiClient, AiApiError } from '@/features/ai/client';
 import { extractAiStreamDelta } from '@/features/ai/stream-delta';
 import { trimConversationHistory } from '@/features/ai/history';
+import {
+  readImageAttachment,
+  type ImageAttachment,
+} from '@/features/ai/image-attachment';
 import type { Message } from '@/features/ai/types';
 import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
@@ -43,10 +47,12 @@ export function Studio() {
   ]);
   const [generationError, setGenerationError] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
   const mediaInput = useRef<HTMLInputElement>(null);
   const overlayInput = useRef<HTMLInputElement>(null);
+  const imageAttachmentInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
   const preset =
     presets.find((item) => item.id === settings.selectedPreset) ?? presets[0];
@@ -93,14 +99,39 @@ export function Studio() {
     if (overlay) setOverlaySource(source);
     else setMediaSource(source);
   };
+  const chooseImageAttachment = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    void readImageAttachment(file)
+      .then((attachment) => {
+        setImageAttachment(attachment);
+        setGenerationError('');
+      })
+      .catch((error: unknown) =>
+        setGenerationError(
+          error instanceof Error ? error.message : 'Unable to attach image',
+        ),
+      );
+  };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const text = input.trim();
+    const text =
+      input.trim() || (imageAttachment ? 'Describe this image.' : '');
     if (!text || generating || !settings.aiModel.trim()) return;
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
-      content: text,
+      content: imageAttachment
+        ? [
+            { type: 'text', text } as const,
+            {
+              type: 'image',
+              data: imageAttachment.data,
+              mimeType: imageAttachment.mimeType,
+            } as const,
+          ]
+        : text,
       timestamp: new Date().toISOString(),
       status: 'complete',
     };
@@ -120,6 +151,7 @@ export function Studio() {
       limitVisibleHistory([...current, userMessage, assistantMessage]),
     );
     setInput('');
+    setImageAttachment(undefined);
     setGenerationError('');
     setGenerating(true);
     const controller = new AbortController();
@@ -358,6 +390,19 @@ export function Studio() {
                       .filter((item) => item.type === 'text')
                       .map((item) => item.text)
                       .join('')}
+                {typeof message.content !== 'string' &&
+                  message.content
+                    .filter((item) => item.type === 'image')
+                    .map((item, imageIndex) => (
+                      // User-provided data URLs cannot use Next Image optimization.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={`${message.id}-image-${imageIndex}`}
+                        src={item.data}
+                        alt="Attached image"
+                        className="mt-2 max-h-32 rounded-lg object-contain"
+                      />
+                    ))}
               </div>
             ))}
           </div>
@@ -379,6 +424,31 @@ export function Studio() {
           onSubmit={(event) => void submit(event)}
           className="absolute inset-x-0 bottom-5 z-40 mx-auto flex max-w-2xl gap-2 px-5"
         >
+          {imageAttachment && (
+            <button
+              type="button"
+              className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/20"
+              aria-label="Remove attached image"
+              onClick={() => setImageAttachment(undefined)}
+            >
+              {/* User-provided data URLs cannot use Next Image optimization. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageAttachment.data}
+                alt={imageAttachment.name}
+                className="h-full w-full object-cover"
+              />
+            </button>
+          )}
+          <button
+            className="rounded-full bg-white/10 px-4 font-bold"
+            type="button"
+            aria-label="Attach image"
+            onClick={() => imageAttachmentInput.current?.click()}
+            disabled={generating}
+          >
+            +Image
+          </button>
           <input
             className="min-w-0 flex-1 rounded-full border border-white/15 bg-slate-950/75 px-5 py-3 backdrop-blur"
             placeholder={t('inputPlaceholder')}
@@ -440,6 +510,13 @@ export function Studio() {
         </button>
       )}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      <input
+        ref={imageAttachmentInput}
+        className="hidden"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={chooseImageAttachment}
+      />
       <input
         ref={mediaInput}
         className="hidden"
