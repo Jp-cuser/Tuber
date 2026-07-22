@@ -27,7 +27,7 @@
 | UI-008       | UI              | Background image/video/webcam/capture/green screen | Required    | Phase 1  | Done        | `MediaBackground.tsx`; local media workflow; README                                      |
 | UI-009       | UI              | Image overlay/modal/placed image                   | Required    | Phase 1  | Done        | Local overlay selection and placed/modal toggle                                          |
 | UI-010       | UI              | Preset questions and character presets             | Required    | Phase 1  | Done        | Five typed presets and question shortcuts                                                |
-| I18N-001     | I18N            | 16-language UI                                     | Required    | Phase 1  | In Progress | 16 resources, detection, switching, RTL and key tests; native label translation pending  |
+| I18N-001     | I18N            | 16-language UI                                     | Required    | Phase 1  | Done        | 16 complete native resources; detection; switching; RTL; unit and Chromium E2E tests     |
 | AVATAR-001   | Avatar          | VRM renderer                                       | Required    | Phase 3  | Not Started |                                                                                          |
 | AVATAR-002   | Avatar          | VRM upload/list/select                             | Required    | Phase 3  | Not Started |                                                                                          |
 | AVATAR-003   | Avatar          | VRM pose/motion/emotion                            | Required    | Phase 3  | Not Started |                                                                                          |

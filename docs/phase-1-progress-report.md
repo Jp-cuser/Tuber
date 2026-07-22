@@ -1,11 +1,11 @@
-# Phase 1 Progress Report
+# Phase 1 Completion Report
 
 Date: 2026-07-22
 
 ## Matrix IDs addressed
 
 - Done: UI-001 through UI-010
-- In progress: I18N-001
+- Done: I18N-001
 
 ## Implementation
 
@@ -24,8 +24,8 @@ Date: 2026-07-22
 - Chromium E2E covers introduction, local chat preview, settings, and theme application.
 - Media permission rejection is contained so the rest of the studio remains usable.
 
-## Remaining work
+## Completion status
 
-`I18N-001` remains in progress. Twelve languages now have complete native key coverage: Japanese, English, Korean, Simplified Chinese, Traditional Chinese, French, Spanish, Portuguese, Italian, German, Russian, and Polish. Vietnamese, Arabic, Hindi, and Thai have localized primary actions with a complete English fallback; their remaining labels must be translated and reviewed before the row can be `Done`.
+All 16 required languages now have complete native key coverage. Automated tests verify identical key sets, non-empty values, 100% native coverage, browser language detection, language switching, and Arabic RTL document direction.
 
-Phase 2 must not begin until I18N-001 is complete and Phase 1 quality gates pass again.
+Phase 1 is complete after the final format, lint, typecheck, unit, integration, build, and Chromium E2E gates pass.

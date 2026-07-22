@@ -35,8 +35,18 @@ describe('translations', () => {
     'de',
     'ru',
     'pl',
+    'vi',
+    'ar',
+    'hi',
+    'th',
   ] as const)('%s has complete native UI coverage', (language) => {
     expect(nativeTranslationCoverage[language]).toBe(1);
+  });
+
+  it('has complete native coverage for all required languages', () => {
+    expect(
+      Object.values(nativeTranslationCoverage).every((value) => value === 1),
+    ).toBe(true);
   });
 
   it.each(languages.filter((language) => language !== 'ja'))(

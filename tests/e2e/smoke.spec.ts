@@ -16,3 +16,13 @@ test('introduction, studio, settings, and chat work', async ({ page }) => {
   await page.getByRole('button', { name: '閉じる' }).click();
   await expect(page.locator('main')).toHaveClass(/theme-forest/);
 });
+
+test('switches to Arabic and applies RTL direction', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'はじめる' }).click();
+  await page.getByRole('button', { name: '設定' }).click();
+  await page.getByLabel('言語').selectOption('ar');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await expect(page.getByRole('complementary')).toContainText('الإعدادات');
+});
