@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { DraggablePanel } from '@/components/common/DraggablePanel';
 import { detectLanguage } from '@/features/i18n/i18n';
 import { AiApiClient, AiApiError } from '@/features/ai/client';
+import { extractAiStreamDelta } from '@/features/ai/stream-delta';
 import type { Message } from '@/features/ai/types';
 import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
@@ -98,14 +99,22 @@ export function Studio() {
       ...messages.filter((message) => message.id !== 'local-preview'),
       userMessage,
     ];
-    setMessages((current) => [...current, userMessage]);
+    const assistantId = crypto.randomUUID();
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date().toISOString(),
+      status: 'streaming',
+    };
+    setMessages((current) => [...current, userMessage, assistantMessage]);
     setInput('');
     setGenerationError('');
     setGenerating(true);
     const controller = new AbortController();
     generationController.current = controller;
     try {
-      const result = await new AiApiClient().generate(
+      const stream = new AiApiClient().stream(
         {
           provider: settings.aiProvider,
           model: settings.aiModel.trim(),
@@ -114,23 +123,52 @@ export function Studio() {
         },
         controller.signal,
       );
-      setMessages((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: result.text,
-          reasoning: result.reasoning,
-          timestamp: new Date().toISOString(),
-          status: 'complete',
-        },
-      ]);
+      let receivedText = false;
+      for await (const chunk of stream) {
+        const delta = extractAiStreamDelta(settings.aiProvider, chunk);
+        if (delta.text) receivedText = true;
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantId
+              ? {
+                  ...message,
+                  content: `${message.content as string}${delta.text ?? ''}`,
+                  reasoning:
+                    `${message.reasoning ?? ''}${delta.reasoning ?? ''}` ||
+                    undefined,
+                }
+              : message,
+          ),
+        );
+      }
+      if (!receivedText) throw new Error('AI stream returned no text');
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === assistantId
+            ? { ...message, status: 'complete' }
+            : message,
+        ),
+      );
     } catch (error) {
       if (controller.signal.aborted) {
         setGenerationError('Generation cancelled');
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantId
+              ? { ...message, status: 'cancelled' }
+              : message,
+          ),
+        );
       } else {
         setGenerationError(
           error instanceof AiApiError ? error.message : 'AI generation failed',
+        );
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantId
+              ? { ...message, status: 'error' }
+              : message,
+          ),
         );
       }
     } finally {

@@ -1,3 +1,4 @@
+import { TextDecoder } from 'node:util';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import Home from '@/pages/index';
 
@@ -14,6 +15,10 @@ describe('Home', () => {
         .fn()
         .mockReturnValueOnce('user-message')
         .mockReturnValueOnce('assistant-message'),
+    });
+    Object.defineProperty(globalThis, 'TextDecoder', {
+      configurable: true,
+      value: TextDecoder,
     });
   });
 
@@ -42,7 +47,25 @@ describe('Home', () => {
       value: jest.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: jest.fn().mockResolvedValue({ text: 'Generated response' }),
+        headers: new Headers({ 'content-type': 'text/event-stream' }),
+        body: {
+          getReader: () => {
+            const chunks = [
+              Buffer.from(
+                `data: ${JSON.stringify({ choices: [{ delta: { content: 'Generated response' } }] })}\n\ndata: [DONE]\n\n`,
+              ),
+            ];
+            return {
+              read: jest.fn(async () => {
+                const value = chunks.shift();
+                return value
+                  ? { done: false, value }
+                  : { done: true, value: undefined };
+              }),
+              releaseLock: jest.fn(),
+            };
+          },
+        },
       }),
     });
     render(<Home />);
@@ -58,7 +81,7 @@ describe('Home', () => {
       ),
     );
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      '/api/ai/generate',
+      '/api/ai/stream',
       expect.objectContaining({
         body: expect.stringContaining('Hello AI'),
       }),
