@@ -445,6 +445,7 @@ export function Studio() {
               source={vrmSource}
               control={{ ...avatarControl, thinking: generating }}
               presentation={avatarPresentation}
+              speaking={generating && messages.at(-1)?.content !== ''}
               onLoaded={handleVrmLoaded}
               onError={handleVrmError}
             />

@@ -11,8 +11,13 @@ foundation without bundling or copying any character asset.
   sizing, ambient/key lighting, frame updates, and complete GPU/model cleanup.
 - Upload validation accepts only non-empty `.vrm` files up to 100 MB.
 - Loading and failure state is shown in the control panel.
-- The renderer remains `In Progress` until a licensed fixture workflow, visual
-  E2E evidence, transforms, expressions, motion, gaze, and lip sync are complete.
+- Pointer movement drives the VRM look-at target and safely returns it to center
+  when the pointer leaves the canvas.
+- Streamed response activity drives the VRM `aa` expression with a bounded
+  deterministic lip-sync envelope; inactive generation closes the mouth.
+- The renderer remains `In Progress` until original generated-fixture visual E2E
+  evidence is recorded. The user-supplied model checklist is documented in
+  `docs/vrm-verification.md`.
 
 ## AVATAR-002 VRM upload, list, and selection
 
@@ -73,4 +78,4 @@ foundation without bundling or copying any character asset.
 
 - Format, lint, type checking, unit tests, integration tests, and production
   build pass at this checkpoint.
-- Unit total: 30 suites and 175 tests.
+- Unit total: 30 suites and 177 tests.

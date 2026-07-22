@@ -32,6 +32,33 @@ export interface AvatarFrame {
   blink: number;
 }
 
+export function computeLipSync(
+  speaking: boolean,
+  elapsedSeconds: number,
+): number {
+  if (!speaking) return 0;
+  const primary = Math.sin(elapsedSeconds * 13) * 0.24;
+  const secondary = Math.sin(elapsedSeconds * 7.3) * 0.12;
+  return Math.min(1, Math.max(0.08, 0.42 + primary + secondary));
+}
+
+export function pointerToLookTarget(
+  clientX: number,
+  clientY: number,
+  width: number,
+  height: number,
+): readonly [number, number, number] {
+  const normalizedX = Math.min(
+    1,
+    Math.max(-1, (clientX / Math.max(width, 1)) * 2 - 1),
+  );
+  const normalizedY = Math.min(
+    1,
+    Math.max(-1, 1 - (clientY / Math.max(height, 1)) * 2),
+  );
+  return [normalizedX * 1.5, 1.35 + normalizedY, 3];
+}
+
 export function computeAvatarFrame(
   control: AvatarControlState,
   elapsedSeconds: number,

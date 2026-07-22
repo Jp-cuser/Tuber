@@ -76,6 +76,9 @@ keeping lighting controls available.
 While an AI response is being generated, the avatar temporarily switches to a
 thinking pose and returns to the selected pose on completion, cancellation, or
 failure.
+VRM look-at follows pointer movement over the canvas, and streamed response text
+drives the standard `aa` mouth expression. See `docs/vrm-verification.md` for the
+user-supplied model acceptance workflow.
 
 ## Baseline and parity
 

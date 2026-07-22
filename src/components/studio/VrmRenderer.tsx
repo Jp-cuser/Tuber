@@ -4,6 +4,7 @@ import {
   AmbientLight,
   Clock,
   DirectionalLight,
+  Object3D,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
@@ -11,6 +12,8 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   computeAvatarFrame,
+  computeLipSync,
+  pointerToLookTarget,
   type AvatarBone,
   type AvatarControlState,
 } from '@/features/avatar/control';
@@ -20,6 +23,7 @@ interface VrmRendererProps {
   source: string;
   control: AvatarControlState;
   presentation: AvatarPresentation;
+  speaking: boolean;
   onLoaded?: () => void;
   onError?: (message: string) => void;
 }
@@ -28,12 +32,14 @@ export function VrmRenderer({
   source,
   control,
   presentation,
+  speaking,
   onLoaded,
   onError,
 }: VrmRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controlRef = useRef(control);
   const presentationRef = useRef(presentation);
+  const speakingRef = useRef(speaking);
 
   useEffect(() => {
     controlRef.current = control;
@@ -41,6 +47,9 @@ export function VrmRenderer({
   useEffect(() => {
     presentationRef.current = presentation;
   }, [presentation]);
+  useEffect(() => {
+    speakingRef.current = speaking;
+  }, [speaking]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,6 +71,9 @@ export function VrmRenderer({
     const keyLight = new DirectionalLight(0xffffff, 2.5);
     keyLight.position.set(1, 2, 3);
     scene.add(keyLight);
+    const lookTarget = new Object3D();
+    lookTarget.position.set(0, 1.35, 3);
+    scene.add(lookTarget);
     const clock = new Clock();
     let elapsed = 0;
 
@@ -75,6 +87,20 @@ export function VrmRenderer({
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
     resize();
+    const trackPointer = (event: PointerEvent) => {
+      const bounds = canvas.getBoundingClientRect();
+      lookTarget.position.set(
+        ...pointerToLookTarget(
+          event.clientX - bounds.left,
+          event.clientY - bounds.top,
+          bounds.width,
+          bounds.height,
+        ),
+      );
+    };
+    const resetPointer = () => lookTarget.position.set(0, 1.35, 3);
+    canvas.addEventListener('pointermove', trackPointer);
+    canvas.addEventListener('pointerleave', resetPointer);
 
     const animate = () => {
       if (disposed) return;
@@ -99,6 +125,10 @@ export function VrmRenderer({
         if (controlRef.current.emotion !== 'neutral')
           model.expressionManager?.setValue(controlRef.current.emotion, 1);
         model.expressionManager?.setValue('blink', avatarFrame.blink);
+        model.expressionManager?.setValue(
+          'aa',
+          computeLipSync(speakingRef.current, elapsed),
+        );
         model.update(delta);
       }
       renderer.render(scene, camera);
@@ -119,6 +149,7 @@ export function VrmRenderer({
         VRMUtils.removeUnnecessaryVertices(model.scene);
         VRMUtils.combineSkeletons(model.scene);
         model.scene.rotation.y = Math.PI;
+        if (model.lookAt) model.lookAt.target = lookTarget;
         scene.add(model.scene);
         onLoaded?.();
       },
@@ -132,6 +163,8 @@ export function VrmRenderer({
       disposed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      canvas.removeEventListener('pointermove', trackPointer);
+      canvas.removeEventListener('pointerleave', resetPointer);
       if (model) {
         scene.remove(model.scene);
         VRMUtils.deepDispose(model.scene);
@@ -140,5 +173,11 @@ export function VrmRenderer({
     };
   }, [onError, onLoaded, source]);
 
-  return <canvas ref={canvasRef} className="h-full w-full" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="h-full w-full"
+      aria-label="VRM avatar renderer"
+    />
+  );
 }
