@@ -56,6 +56,18 @@ describe('Home', () => {
     expect(screen.getByLabelText('Silence timeout progress')).toHaveValue(0);
   });
 
+  it('exposes VOICEVOX speaker and synthesis controls', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    expect(screen.getByLabelText('VOICEVOX speaker ID')).toHaveValue(1);
+    expect(screen.getByLabelText('VOICEVOX speed')).toHaveValue('1');
+    expect(screen.getByLabelText('VOICEVOX pitch')).toHaveValue('0');
+    expect(screen.getByLabelText('VOICEVOX intonation')).toHaveValue('1');
+    expect(
+      screen.getByRole('button', { name: 'Test VOICEVOX speech' }),
+    ).toBeInTheDocument();
+  });
+
   it('changes avatar pose, motion, and emotion controls', () => {
     render(<Home />);
     fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));

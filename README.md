@@ -101,6 +101,11 @@ Whisper transcription accepts audio files from the control panel using
 server-only `AI_OPENAI_API_KEY`; provider credentials are not exposed to the
 browser. `MAX_REQUEST_BODY_BYTES` must accommodate base64-encoded audio.
 
+VOICEVOX synthesis uses the server-side `TTS_VOICEVOX_BASE_URL` (loopback by
+default). The Studio preview exposes speaker ID, speed, pitch, and intonation;
+requests pass through the protected application API. Add any non-loopback local
+service origin to `TTS_LOCAL_ALLOWED_ORIGINS` explicitly.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

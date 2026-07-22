@@ -27,6 +27,7 @@ import {
 import { transcribeAudioFile } from '@/features/speech/transcription-client';
 import { whisperModels, type WhisperModel } from '@/features/speech/whisper';
 import { BrowserSilenceMonitor } from '@/features/speech/silence-monitor';
+import { synthesizeSpeech } from '@/features/tts/client';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
@@ -111,6 +112,11 @@ export function Studio() {
   const [transcribing, setTranscribing] = useState(false);
   const [silenceProgress, setSilenceProgress] = useState(0);
   const [microphoneLevel, setMicrophoneLevel] = useState(0);
+  const [ttsStatus, setTtsStatus] = useState('VOICEVOX ready');
+  const [ttsSpeakerId, setTtsSpeakerId] = useState('1');
+  const [ttsSpeed, setTtsSpeed] = useState(1);
+  const [ttsPitch, setTtsPitch] = useState(0);
+  const [ttsIntonation, setTtsIntonation] = useState(1);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -195,6 +201,8 @@ export function Studio() {
   const generationController = useRef<AbortController>();
   const speechRecognition = useRef<BrowserSpeechRecognition>();
   const silenceMonitor = useRef<BrowserSilenceMonitor>();
+  const audioPlayback = useRef<HTMLAudioElement>();
+  const audioPlaybackUrl = useRef<string>();
   const audioTranscriptionInput = useRef<HTMLInputElement>(null);
   const speechBaseInput = useRef('');
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
@@ -303,6 +311,9 @@ export function Studio() {
     () => () => {
       speechRecognition.current?.abort();
       silenceMonitor.current?.stop();
+      audioPlayback.current?.pause();
+      if (audioPlaybackUrl.current)
+        URL.revokeObjectURL(audioPlaybackUrl.current);
     },
     [],
   );
@@ -417,6 +428,39 @@ export function Studio() {
       );
     } finally {
       setTranscribing(false);
+    }
+  };
+
+  const previewVoicevox = async () => {
+    const latest = messages.at(-1)?.content;
+    const text = input.trim() || (typeof latest === 'string' ? latest : '');
+    if (!text) {
+      setTtsStatus('Enter text before testing speech');
+      return;
+    }
+    setTtsStatus('Synthesizing speech');
+    try {
+      const blob = await synthesizeSpeech('voicevox', text, {
+        speakerId: ttsSpeakerId,
+        speed: ttsSpeed,
+        pitch: ttsPitch,
+        intonation: ttsIntonation,
+      });
+      audioPlayback.current?.pause();
+      if (audioPlaybackUrl.current)
+        URL.revokeObjectURL(audioPlaybackUrl.current);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioPlayback.current = audio;
+      audioPlaybackUrl.current = url;
+      audio.onended = () => setTtsStatus('Speech playback complete');
+      audio.onerror = () => setTtsStatus('Unable to play synthesized speech');
+      await audio.play();
+      setTtsStatus('Playing synthesized speech');
+    } catch (error) {
+      setTtsStatus(
+        error instanceof Error ? error.message : 'Speech synthesis failed',
+      );
     }
   };
 
@@ -832,6 +876,75 @@ export function Studio() {
             >
               {transcribing ? 'Transcribing audio…' : 'Transcribe audio file'}
             </button>
+            <fieldset className="col-span-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
+              <legend className="px-1 text-xs font-semibold">VOICEVOX</legend>
+              <label className="text-xs text-white/70">
+                Speaker ID
+                <input
+                  className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                  aria-label="VOICEVOX speaker ID"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={ttsSpeakerId}
+                  onChange={(event) => setTtsSpeakerId(event.target.value)}
+                />
+              </label>
+              <label className="text-xs text-white/70">
+                Speed: {ttsSpeed.toFixed(1)}
+                <input
+                  className="w-full"
+                  aria-label="VOICEVOX speed"
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.1"
+                  value={ttsSpeed}
+                  onChange={(event) => setTtsSpeed(event.target.valueAsNumber)}
+                />
+              </label>
+              <label className="text-xs text-white/70">
+                Pitch: {ttsPitch.toFixed(2)}
+                <input
+                  className="w-full"
+                  aria-label="VOICEVOX pitch"
+                  type="range"
+                  min="-0.15"
+                  max="0.15"
+                  step="0.01"
+                  value={ttsPitch}
+                  onChange={(event) => setTtsPitch(event.target.valueAsNumber)}
+                />
+              </label>
+              <label className="text-xs text-white/70">
+                Intonation: {ttsIntonation.toFixed(1)}
+                <input
+                  className="w-full"
+                  aria-label="VOICEVOX intonation"
+                  type="range"
+                  min="0"
+                  max="2"
+                  step="0.1"
+                  value={ttsIntonation}
+                  onChange={(event) =>
+                    setTtsIntonation(event.target.valueAsNumber)
+                  }
+                />
+              </label>
+              <button
+                className="panel-button col-span-2"
+                type="button"
+                onClick={() => void previewVoicevox()}
+              >
+                Test VOICEVOX speech
+              </button>
+              <p
+                className="col-span-2 text-xs text-white/60"
+                aria-live="polite"
+              >
+                {ttsStatus}
+              </p>
+            </fieldset>
             {avatarMode === 'live2d' && (
               <>
                 {(

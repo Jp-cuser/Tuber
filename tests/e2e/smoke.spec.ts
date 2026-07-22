@@ -252,3 +252,42 @@ test('transcribes an audio file through the protected application route', async 
   );
   await expect(page.getByText('Transcript ready')).toBeVisible();
 });
+
+test('synthesizes and plays a VOICEVOX preview through the application route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'voicevox',
+      text: 'voice fixture',
+      options: {
+        speakerId: '1',
+        speed: 1,
+        pitch: 0,
+        intonation: 1,
+      },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'UklGRg==', mimeType: 'audio/wav' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('Chat message').fill('voice fixture');
+  await page.getByRole('button', { name: 'Test VOICEVOX speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});
