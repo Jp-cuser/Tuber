@@ -3,6 +3,10 @@
 No VRM character asset is redistributed with LocalAITuber. Use a model that you
 created or are licensed to use for the visual acceptance check.
 
+Automated Chromium coverage separately generates an original minimal VRM 1.0
+fixture in memory and verifies upload, parsing, renderer readiness, reload
+restoration, and deletion without committing an avatar asset to the repository.
+
 1. Open Studio and choose **Load VRM**.
 2. Select a non-empty `.vrm` file no larger than 100 MB.
 3. Confirm the loading status changes to `VRM model ready` and the model appears.

@@ -1,7 +1,12 @@
-# Phase 3 Progress Report
+# Phase 3 Completion Report
 
-Phase 3 is in progress. This checkpoint establishes the original VRM rendering
-foundation without bundling or copying any character asset.
+Phase 3 is complete. All VRM rows have implementation, error handling, tests,
+documentation, passing quality gates, and recorded evidence without bundling or
+copying any third-party character asset.
+
+## Matrix IDs addressed
+
+`AVATAR-001` through `AVATAR-005`.
 
 ## AVATAR-001 VRM renderer
 
@@ -15,9 +20,9 @@ foundation without bundling or copying any character asset.
   when the pointer leaves the canvas.
 - Streamed response activity drives the VRM `aa` expression with a bounded
   deterministic lip-sync envelope; inactive generation closes the mouth.
-- The renderer remains `In Progress` until original generated-fixture visual E2E
-  evidence is recorded. The user-supplied model checklist is documented in
-  `docs/vrm-verification.md`.
+- Chromium E2E constructs an original minimal VRM 1.0 GLB in memory, verifies
+  real parser and renderer readiness, reload restoration, and deletion. The
+  user-supplied model checklist is documented in `docs/vrm-verification.md`.
 
 ## AVATAR-002 VRM upload, list, and selection
 
@@ -73,9 +78,45 @@ foundation without bundling or copying any character asset.
 - `three`
 - `@pixiv/three-vrm`
 - `@types/three` (development)
+- `fake-indexeddb` (development)
+
+## Files changed
+
+- `src/components/studio/Studio.tsx`
+- `src/components/studio/VrmRenderer.tsx`
+- `src/features/avatar/control.ts`
+- `src/features/avatar/presentation.ts`
+- `src/features/avatar/vrm-file.ts`
+- `src/features/avatar/vrm-library.ts`
+- avatar unit tests and `tests/e2e/smoke.spec.ts`
+- `README.md`, `FEATURE_MATRIX.md`, and VRM documentation
+
+## Design decisions
+
+- Character assets remain user-owned and browser-local; no model is bundled or
+  sent to the server.
+- IndexedDB owns durable model bytes, while typed pure functions own animation
+  state independently from Three.js.
+- Browser-only dynamic loading keeps Three.js out of server rendering and Jest's
+  CommonJS path.
+- Renderer refs apply live state without recreating WebGL or reloading the model.
 
 ## Verification
 
 - Format, lint, type checking, unit tests, integration tests, and production
-  build pass at this checkpoint.
+  build pass.
 - Unit total: 30 suites and 177 tests.
+- Integration total: 3 suites and 7 tests.
+- Chromium E2E total: 3 tests, including generated VRM load/restore/delete.
+
+## Unresolved risks
+
+- Visual appearance and optional expressions vary across user models; the
+  supplied-file checklist remains necessary for model-specific acceptance.
+- Lip sync currently follows streamed response activity. Phase 6 will replace
+  the envelope input with real audio amplitude while retaining the `aa` output.
+
+## Next recommended phase
+
+Phase 4: implement adapter-based Live2D Cubism 3+ and MotionPNGTuber modes,
+including emotions, motion groups, video switching, chroma key, and transforms.
