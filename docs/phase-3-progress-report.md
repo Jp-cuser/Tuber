@@ -53,6 +53,16 @@ foundation without bundling or copying any character asset.
 - Unit tests cover valid persistence and invalid storage recovery. Studio tests
   verify transform persistence and the lock's disabled-control behavior.
 
+## AVATAR-005 thinking pose
+
+- AI generation state automatically activates a dedicated head, torso, and
+  hand-to-chin humanoid pose while retaining subtle idle movement.
+- Thinking takes temporary priority over the user-selected pose. The original
+  pose remains stored and is restored automatically when generation completes,
+  is cancelled, or fails because the shared `finally` path clears generation.
+- Pure animation tests verify that thinking overrides a wave without mutating
+  the selected pose, and the control panel exposes the current pose state.
+
 ## Dependencies added
 
 - `three`
@@ -63,4 +73,4 @@ foundation without bundling or copying any character asset.
 
 - Format, lint, type checking, unit tests, integration tests, and production
   build pass at this checkpoint.
-- Unit total: 30 suites and 174 tests.
+- Unit total: 30 suites and 175 tests.

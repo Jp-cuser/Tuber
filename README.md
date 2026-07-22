@@ -73,6 +73,9 @@ or expressions are ignored safely by the renderer.
 Position, rotation, scale, ambient lighting, and key lighting are adjustable and
 stored locally. Locking the transform disables accidental position changes while
 keeping lighting controls available.
+While an AI response is being generated, the avatar temporarily switches to a
+thinking pose and returns to the selected pose on completion, cancellation, or
+failure.
 
 ## Baseline and parity
 

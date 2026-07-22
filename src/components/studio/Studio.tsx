@@ -86,6 +86,7 @@ export function Studio() {
     pose: 'neutral',
     motion: 'idle',
     emotion: 'neutral',
+    thinking: false,
   });
   const [avatarPresentation, setAvatarPresentation] =
     useState<AvatarPresentation>(defaultAvatarPresentation);
@@ -442,7 +443,7 @@ export function Studio() {
           <div className="h-[80vh] w-full max-w-3xl" aria-label="VRM renderer">
             <VrmRenderer
               source={vrmSource}
-              control={avatarControl}
+              control={{ ...avatarControl, thinking: generating }}
               presentation={avatarPresentation}
               onLoaded={handleVrmLoaded}
               onError={handleVrmError}
@@ -507,6 +508,12 @@ export function Studio() {
               <option value="capture">{t('capture')}</option>
               <option value="green">{t('green')}</option>
             </select>
+            <p
+              className="col-span-2 text-xs text-white/60"
+              data-testid="thinking-pose-state"
+            >
+              Thinking pose: {generating ? 'active' : 'idle'}
+            </p>
             <button
               className="panel-button col-span-2"
               onClick={() => mediaInput.current?.click()}

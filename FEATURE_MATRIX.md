@@ -32,7 +32,7 @@
 | AVATAR-002   | Avatar          | VRM upload/list/select                             | Required    | Phase 3  | Done        | Validated upload; IndexedDB library; list/select/delete/restore UI; tests and docs       |
 | AVATAR-003   | Avatar          | VRM pose/motion/emotion                            | Required    | Phase 3  | Done        | Typed controls; humanoid pose/idle/wave/blink animation; expression mapping; tests/docs  |
 | AVATAR-004   | Avatar          | VRM lighting/transform/fixed position              | Required    | Phase 3  | Done        | Validated persistent transforms; ambient/key lighting; position lock; UI/unit tests/docs |
-| AVATAR-005   | Avatar          | Thinking pose                                      | Required    | Phase 3  | Not Started |                                                                                          |
+| AVATAR-005   | Avatar          | Thinking pose                                      | Required    | Phase 3  | Done        | Generation-state override; humanoid thinking pose; automatic restore; tests/docs         |
 | AVATAR-006   | Avatar          | Live2D Cubism 3+                                   | Required    | Phase 4  | Not Started |                                                                                          |
 | AVATAR-007   | Avatar          | Live2D emotions and motion groups                  | Required    | Phase 4  | Not Started |                                                                                          |
 | AVATAR-008   | Avatar          | MotionPNGTuber-compatible mode                     | Required    | Phase 4  | Not Started |                                                                                          |

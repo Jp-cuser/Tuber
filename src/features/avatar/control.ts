@@ -24,6 +24,7 @@ export interface AvatarControlState {
   pose: AvatarPose;
   motion: AvatarMotion;
   emotion: AvatarEmotion;
+  thinking: boolean;
 }
 
 export interface AvatarFrame {
@@ -44,7 +45,14 @@ export function computeAvatarFrame(
     rightUpperArm: [0, 0, -1.25],
   };
 
-  if (control.pose === 'wave') {
+  if (control.thinking) {
+    bones.head = [0.08, -0.14 + idle * 0.015, 0.1];
+    bones.chest = [0.04, 0.05, -idle * 0.018];
+    bones.rightUpperArm = [0.25, -0.2, -1.35];
+    bones.rightLowerArm = [-0.15, 0.2, -1.8];
+    bones.leftUpperArm = [0.1, 0, 1.05];
+    bones.leftLowerArm = [0, 0, 1.15];
+  } else if (control.pose === 'wave') {
     bones.rightUpperArm = [0.15, 0, -2.35];
     bones.rightLowerArm = [0, 0, -0.45 + Math.sin(elapsedSeconds * 5) * 0.25];
   } else if (control.pose === 'confident') {
