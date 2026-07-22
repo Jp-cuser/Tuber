@@ -35,9 +35,19 @@ recognition without sending microphone audio through the application server.
 - Completion still requires silence progress/detection and mutual exclusion with
   later Realtime and Audio modes.
 
+## STT-003 silence detection and progress
+
+- A Web Audio analyser measures RMS microphone level without retaining audio.
+- Silence countdown starts only after speech crosses the configured threshold.
+- Resumed speech resets the countdown; two seconds of continuous silence stops
+  recognition and releases the microphone stream.
+- The Studio shows microphone level and accessible silence progress.
+- Unit fixtures cover speech gating, progress, reset, timeout, and unsupported
+  browser handling.
+
 ## Verification
 
-- Unit: 36 suites and 204 tests pass.
+- Unit: 37 suites and 207 tests pass.
 - Integration: 4 suites and 9 tests pass.
 - Chromium E2E: 7 tests pass, including microphone availability and Whisper
   route handling.

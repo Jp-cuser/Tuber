@@ -26,6 +26,7 @@ import {
 } from '@/features/speech/browser-recognition';
 import { transcribeAudioFile } from '@/features/speech/transcription-client';
 import { whisperModels, type WhisperModel } from '@/features/speech/whisper';
+import { BrowserSilenceMonitor } from '@/features/speech/silence-monitor';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
@@ -108,6 +109,8 @@ export function Studio() {
     'gpt-4o-mini-transcribe',
   );
   const [transcribing, setTranscribing] = useState(false);
+  const [silenceProgress, setSilenceProgress] = useState(0);
+  const [microphoneLevel, setMicrophoneLevel] = useState(0);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -191,6 +194,7 @@ export function Studio() {
   const pngTuberTalkingInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
   const speechRecognition = useRef<BrowserSpeechRecognition>();
+  const silenceMonitor = useRef<BrowserSilenceMonitor>();
   const audioTranscriptionInput = useRef<HTMLInputElement>(null);
   const speechBaseInput = useRef('');
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
@@ -298,6 +302,7 @@ export function Studio() {
   useEffect(
     () => () => {
       speechRecognition.current?.abort();
+      silenceMonitor.current?.stop();
     },
     [],
   );
@@ -306,6 +311,10 @@ export function Studio() {
     if (microphoneActive) {
       speechRecognition.current?.stop();
       speechRecognition.current = undefined;
+      silenceMonitor.current?.stop();
+      silenceMonitor.current = undefined;
+      setSilenceProgress(0);
+      setMicrophoneLevel(0);
       setMicrophoneActive(false);
       return;
     }
@@ -324,7 +333,10 @@ export function Studio() {
         if (final) {
           speechBaseInput.current = `${speechBaseInput.current}${separator}${transcript}`;
           setSpeechStatus('Transcript ready');
-          if (!continuousMicrophone) setMicrophoneActive(false);
+          if (!continuousMicrophone) {
+            silenceMonitor.current?.stop();
+            setMicrophoneActive(false);
+          }
         }
       },
       onStatus: (status) => {
@@ -333,8 +345,11 @@ export function Studio() {
           status === 'Microphone stopped' ||
           status.includes('denied') ||
           status.includes('not supported')
-        )
+        ) {
+          silenceMonitor.current?.stop();
+          silenceMonitor.current = undefined;
           setMicrophoneActive(false);
+        }
       },
     });
     speechRecognition.current = adapter;
@@ -342,6 +357,27 @@ export function Studio() {
       adapter.start();
       setMicrophoneActive(true);
       setSpeechStatus('Starting microphone');
+      const monitor = new BrowserSilenceMonitor({
+        silenceTimeoutMs: 2_000,
+        onStatus: ({ level, silenceProgress: progress }) => {
+          setMicrophoneLevel(level);
+          setSilenceProgress(progress);
+        },
+        onSilence: () => {
+          speechRecognition.current?.stop();
+          speechRecognition.current = undefined;
+          silenceMonitor.current?.stop();
+          silenceMonitor.current = undefined;
+          setMicrophoneActive(false);
+          setSpeechStatus('Stopped after silence');
+        },
+      });
+      silenceMonitor.current = monitor;
+      void monitor.start().catch(() => {
+        monitor.stop();
+        if (silenceMonitor.current === monitor)
+          silenceMonitor.current = undefined;
+      });
     } catch (error) {
       setSpeechStatus(
         error instanceof Error ? error.message : 'Unable to start microphone',
@@ -748,6 +784,18 @@ export function Studio() {
             </label>
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {speechStatus}
+            </p>
+            <label className="col-span-2 text-xs text-white/70">
+              Silence timeout: {Math.round(silenceProgress * 100)}%
+              <progress
+                className="mt-1 block w-full"
+                aria-label="Silence timeout progress"
+                max="1"
+                value={silenceProgress}
+              />
+            </label>
+            <p className="col-span-2 text-xs text-white/50">
+              Microphone level: {Math.round(microphoneLevel * 100)}%
             </p>
             <select
               className="panel-button col-span-2"

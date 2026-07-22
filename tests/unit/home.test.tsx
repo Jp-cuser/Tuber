@@ -53,6 +53,7 @@ describe('Home', () => {
     expect(
       screen.getByRole('button', { name: 'Transcribe audio file' }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Silence timeout progress')).toHaveValue(0);
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {

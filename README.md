@@ -92,6 +92,9 @@ The Studio microphone button uses browser SpeechRecognition when available.
 Interim/final transcripts remain editable before sending; continuous mode can
 restart recognition, and permission, microphone, support, and timeout failures
 are shown in the control panel.
+After speech begins, the microphone level monitor displays silence progress and
+stops recognition after two seconds of continuous silence. Resumed speech resets
+the countdown.
 
 Whisper transcription accepts audio files from the control panel using
 `whisper-1`, `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe`. Configure the
