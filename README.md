@@ -4,7 +4,14 @@ LocalAITuber is an independent Windows-first implementation of a local AI charac
 
 ## Current status
 
-Phase 0 provides the Next.js foundation, Tailwind CSS, Zustand, Zod, i18next, typed errors, structured redacted logging, environment validation, access-policy primitives, diagnostics, and Windows setup/launch scripts. Character and conversation features begin in later phases and are not implemented yet.
+Phase 1 provides the interactive studio shell, introduction screen, draggable/resizable controls, chat and assistant presentation, six themes, media backgrounds, image overlays, settings import/export/reset, five character presets, versioned local persistence, and a 16-language UI. AI connections and character renderers begin in later phases and are clearly marked as unavailable.
+
+### Studio controls
+
+- Open settings with the gear button to change language, theme, names, visibility, assistant/chat style, position, width, preset, and Japanese reading preference.
+- Select image/video files as local backgrounds, or request webcam/screen-capture backgrounds. Browser permission denial leaves the rest of the studio usable.
+- Select a local image overlay, click it to toggle placed/modal display, and use presentation mode to hide the input bar.
+- Settings persist in browser local storage. Export/import uses versioned JSON; reset restores defaults. `NEXT_PUBLIC_DEFAULT_LANGUAGE` and `NEXT_PUBLIC_DEFAULT_THEME` set initial defaults. Set `NEXT_PUBLIC_SETTINGS_ENV_OVERRIDE=true` to keep those two environment values authoritative.
 
 ## Windows quick start
 
