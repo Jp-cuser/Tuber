@@ -83,17 +83,69 @@ const names: Record<Language, string> = {
   th: 'ไทย',
 };
 
+const englishTranslation: Translation = {
+  appName: 'LocalAITuber',
+  welcome: 'Talk with your AI character',
+  start: 'Start',
+  settings: 'Settings',
+  close: 'Close',
+  controls: 'Control panel',
+  assistant: 'Assistant response',
+  chat: 'Chat log',
+  theme: 'Theme',
+  language: 'Language',
+  background: 'Background',
+  overlay: 'Image overlay',
+  fullscreen: 'Fullscreen',
+  presentation: 'Presentation view',
+  send: 'Send',
+  inputPlaceholder: 'Type a message',
+  quickQuestions: 'Preset questions',
+  characterPreset: 'Character preset',
+  appearance: 'Appearance',
+  names: 'Names',
+  characterName: 'Character name',
+  userName: 'User name',
+  chatPosition: 'Chat position',
+  left: 'Left',
+  right: 'Right',
+  width: 'Width',
+  offset: 'Edge offset',
+  design: 'Design',
+  style: 'Response style',
+  bubble: 'Bubble',
+  borderless: 'Borderless',
+  image: 'Image',
+  video: 'Video',
+  webcam: 'Webcam',
+  capture: 'Screen capture',
+  green: 'Green screen',
+  gradient: 'Gradient',
+  hidden: 'Hidden',
+  placed: 'Placed',
+  modal: 'Modal',
+  import: 'Import settings',
+  export: 'Export settings',
+  reset: 'Reset settings',
+  connectionReady: 'Ready',
+  localPreview: 'AI connections become available in Phase 2.',
+  toggleMenu: 'Toggle menu',
+  uploadMedia: 'Choose media',
+  englishReading: 'Japanese reading for English words',
+  classic: 'Classic',
+  glass: 'Glass',
+  show: 'Show',
+  introSkip: 'Skip next time',
+  loading: 'Loading',
+  mediaError: 'Could not start media',
+  remove: 'Remove',
+  introTitle: 'Your local AI character',
+  introBody:
+    'Create a character experience while keeping settings and data on your own PC.',
+};
+
 const overrides: Partial<Record<Language, Partial<Translation>>> = {
-  en: {
-    welcome: 'Talk with your AI character',
-    start: 'Start',
-    settings: 'Settings',
-    close: 'Close',
-    send: 'Send',
-    inputPlaceholder: 'Type a message',
-    connectionReady: 'Ready',
-    localPreview: 'AI connections become available in Phase 2.',
-  },
+  en: englishTranslation,
   ko: {
     welcome: 'AI 캐릭터와 대화해 보세요',
     start: '시작',
@@ -169,9 +221,28 @@ const overrides: Partial<Record<Language, Partial<Translation>>> = {
 };
 
 export const languageNames = names;
+export const nativeTranslationCoverage = Object.fromEntries(
+  languagesForCoverage().map((language) => [
+    language,
+    language === 'ja' || language === 'en'
+      ? 1
+      : Object.keys(overrides[language] ?? {}).length /
+        Object.keys(baseTranslation).length,
+  ]),
+) as Record<Language, number>;
+
 export const resources = Object.fromEntries(
   Object.keys(names).map((language) => [
     language,
-    { translation: { ...baseTranslation, ...overrides[language as Language] } },
+    {
+      translation: {
+        ...(language === 'ja' ? baseTranslation : englishTranslation),
+        ...overrides[language as Language],
+      },
+    },
   ]),
 ) as Record<Language, { translation: Translation }>;
+
+function languagesForCoverage(): Language[] {
+  return Object.keys(names) as Language[];
+}
