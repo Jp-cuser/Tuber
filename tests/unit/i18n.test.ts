@@ -24,7 +24,7 @@ describe('translations', () => {
     expect(nativeTranslationCoverage.en).toBe(1);
   });
 
-  it.each(['ko', 'zh-CN', 'zh-TW'] as const)(
+  it.each(['ko', 'zh-CN', 'zh-TW', 'fr', 'es', 'pt', 'it'] as const)(
     '%s has complete native UI coverage',
     (language) => {
       expect(nativeTranslationCoverage[language]).toBe(1);
