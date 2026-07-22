@@ -77,6 +77,21 @@ describe('Home', () => {
     expect(position).toBeDisabled();
   });
 
+  it('switches to MotionPNGTuber controls', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    fireEvent.change(screen.getByLabelText('Avatar mode'), {
+      target: { value: 'pngtuber' },
+    });
+
+    expect(screen.getByRole('button', { name: 'Idle video' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Talking video' })).toBeVisible();
+    fireEvent.change(screen.getByLabelText('PNGTuber sensitivity'), {
+      target: { value: '0.8' },
+    });
+    expect(screen.getByLabelText('PNGTuber sensitivity')).toHaveValue('0.8');
+  });
+
   it('sends chat history to the AI API and renders the response', async () => {
     useSettingsStore.setState({
       reasoningEnabled: true,

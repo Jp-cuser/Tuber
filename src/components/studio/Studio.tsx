@@ -24,6 +24,11 @@ import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
 import {
+  selectPngTuberState,
+  validatePngTuberVideo,
+} from '@/features/avatar/pngtuber';
+import { PngTuberRenderer } from './PngTuberRenderer';
+import {
   deleteVrmModel,
   getVrmModel,
   listVrmModels,
@@ -91,6 +96,13 @@ export function Studio() {
   const [avatarPresentation, setAvatarPresentation] =
     useState<AvatarPresentation>(defaultAvatarPresentation);
   const [vrmStatus, setVrmStatus] = useState('No VRM model selected');
+  const [avatarMode, setAvatarMode] = useState<'vrm' | 'pngtuber'>('vrm');
+  const [pngTuberIdleSource, setPngTuberIdleSource] = useState<string>();
+  const [pngTuberTalkingSource, setPngTuberTalkingSource] = useState<string>();
+  const [pngTuberStatus, setPngTuberStatus] = useState(
+    'Select idle and talking videos',
+  );
+  const [pngTuberSensitivity, setPngTuberSensitivity] = useState(0.5);
   const handleVrmLoaded = useCallback(
     () => setVrmStatus('VRM model ready'),
     [],
@@ -103,6 +115,8 @@ export function Studio() {
   const overlayInput = useRef<HTMLInputElement>(null);
   const imageAttachmentInput = useRef<HTMLInputElement>(null);
   const vrmInput = useRef<HTMLInputElement>(null);
+  const pngTuberIdleInput = useRef<HTMLInputElement>(null);
+  const pngTuberTalkingInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
   const preset =
@@ -179,9 +193,41 @@ export function Studio() {
       if (mediaSource) URL.revokeObjectURL(mediaSource);
       if (overlaySource) URL.revokeObjectURL(overlaySource);
       if (vrmSource) URL.revokeObjectURL(vrmSource);
+      if (pngTuberIdleSource) URL.revokeObjectURL(pngTuberIdleSource);
+      if (pngTuberTalkingSource) URL.revokeObjectURL(pngTuberTalkingSource);
     },
-    [mediaSource, overlaySource, vrmSource],
+    [
+      mediaSource,
+      overlaySource,
+      vrmSource,
+      pngTuberIdleSource,
+      pngTuberTalkingSource,
+    ],
   );
+
+  const choosePngTuberVideo = (
+    event: ChangeEvent<HTMLInputElement>,
+    kind: 'idle' | 'talking',
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      validatePngTuberVideo(file);
+      const source = URL.createObjectURL(file);
+      const update =
+        kind === 'idle' ? setPngTuberIdleSource : setPngTuberTalkingSource;
+      update((current) => {
+        if (current) URL.revokeObjectURL(current);
+        return source;
+      });
+      setPngTuberStatus(`${kind === 'idle' ? 'Idle' : 'Talking'} video ready`);
+    } catch (error) {
+      setPngTuberStatus(
+        error instanceof Error ? error.message : 'Invalid PNGTuber video',
+      );
+    }
+  };
 
   const chooseVrm = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -439,7 +485,20 @@ export function Studio() {
         className="absolute inset-0 z-10 grid place-items-center"
         aria-label="character stage"
       >
-        {vrmSource ? (
+        {avatarMode === 'pngtuber' &&
+        pngTuberIdleSource &&
+        pngTuberTalkingSource ? (
+          <div className="h-[80vh] w-full max-w-3xl">
+            <PngTuberRenderer
+              idleSource={pngTuberIdleSource}
+              talkingSource={pngTuberTalkingSource}
+              state={selectPngTuberState(
+                generating && messages.at(-1)?.content !== '' ? 1 : 0,
+                pngTuberSensitivity,
+              )}
+            />
+          </div>
+        ) : avatarMode === 'vrm' && vrmSource ? (
           <div className="h-[80vh] w-full max-w-3xl" aria-label="VRM renderer">
             <VrmRenderer
               source={vrmSource}
@@ -475,6 +534,17 @@ export function Studio() {
         <DraggablePanel>
           <h2 className="font-bold">{t('controls')}</h2>
           <div className="mt-3 grid grid-cols-2 gap-2">
+            <select
+              className="panel-button col-span-2"
+              aria-label="Avatar mode"
+              value={avatarMode}
+              onChange={(event) =>
+                setAvatarMode(event.target.value as 'vrm' | 'pngtuber')
+              }
+            >
+              <option value="vrm">VRM</option>
+              <option value="pngtuber">MotionPNGTuber</option>
+            </select>
             <button
               className="panel-button"
               onClick={() =>
@@ -732,6 +802,43 @@ export function Studio() {
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {vrmStatus}
             </p>
+            {avatarMode === 'pngtuber' && (
+              <>
+                <button
+                  className="panel-button"
+                  onClick={() => pngTuberIdleInput.current?.click()}
+                >
+                  Idle video
+                </button>
+                <button
+                  className="panel-button"
+                  onClick={() => pngTuberTalkingInput.current?.click()}
+                >
+                  Talking video
+                </button>
+                <label className="col-span-2 text-xs text-white/70">
+                  Sensitivity: {pngTuberSensitivity.toFixed(2)}
+                  <input
+                    className="w-full"
+                    aria-label="PNGTuber sensitivity"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={pngTuberSensitivity}
+                    onChange={(event) =>
+                      setPngTuberSensitivity(event.target.valueAsNumber)
+                    }
+                  />
+                </label>
+                <p
+                  className="col-span-2 text-xs text-white/60"
+                  aria-live="polite"
+                >
+                  {pngTuberStatus}
+                </p>
+              </>
+            )}
           </div>
         </DraggablePanel>
       )}
@@ -907,6 +1014,20 @@ export function Studio() {
         </button>
       )}
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
+      <input
+        ref={pngTuberIdleInput}
+        className="hidden"
+        type="file"
+        accept="video/mp4,video/webm"
+        onChange={(event) => choosePngTuberVideo(event, 'idle')}
+      />
+      <input
+        ref={pngTuberTalkingInput}
+        className="hidden"
+        type="file"
+        accept="video/mp4,video/webm"
+        onChange={(event) => choosePngTuberVideo(event, 'talking')}
+      />
       <input
         ref={vrmInput}
         className="hidden"
