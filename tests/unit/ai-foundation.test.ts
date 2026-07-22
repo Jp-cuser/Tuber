@@ -1,7 +1,10 @@
 import { aiProviders } from '@/features/ai/types';
 import { aiRequestSchema, providerConfigSchema } from '@/features/ai/schemas';
 import { providerRegistry } from '@/features/ai/registry';
-import { ShortTermHistory } from '@/features/ai/history';
+import {
+  ShortTermHistory,
+  trimConversationHistory,
+} from '@/features/ai/history';
 
 const message = (id: string) => ({
   id,
@@ -40,5 +43,12 @@ describe('AI foundation', () => {
     history.add(message('2'));
     history.add(message('3'));
     expect(history.list().map((item) => item.id)).toEqual(['2', '3']);
+  });
+  it('trims immutable message lists to the newest messages', () => {
+    const messages = [message('1'), message('2'), message('3')];
+    expect(trimConversationHistory(messages, 2).map((item) => item.id)).toEqual(
+      ['2', '3'],
+    );
+    expect(messages).toHaveLength(3);
   });
 });

@@ -10,6 +10,7 @@ import { DraggablePanel } from '@/components/common/DraggablePanel';
 import { detectLanguage } from '@/features/i18n/i18n';
 import { AiApiClient, AiApiError } from '@/features/ai/client';
 import { extractAiStreamDelta } from '@/features/ai/stream-delta';
+import { trimConversationHistory } from '@/features/ai/history';
 import type { Message } from '@/features/ai/types';
 import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
@@ -49,6 +50,14 @@ export function Studio() {
   const generationController = useRef<AbortController>();
   const preset =
     presets.find((item) => item.id === settings.selectedPreset) ?? presets[0];
+  const limitVisibleHistory = (current: Message[]) => {
+    const preview = current.find((message) => message.id === 'local-preview');
+    const conversation = trimConversationHistory(
+      current.filter((message) => message.id !== 'local-preview'),
+      settings.historyLimit,
+    );
+    return preview ? [preview, ...conversation] : conversation;
+  };
 
   useEffect(() => {
     if (
@@ -98,7 +107,7 @@ export function Studio() {
     const requestMessages = [
       ...messages.filter((message) => message.id !== 'local-preview'),
       userMessage,
-    ];
+    ].slice(-settings.historyLimit);
     const assistantId = crypto.randomUUID();
     const assistantMessage: Message = {
       id: assistantId,
@@ -107,7 +116,9 @@ export function Studio() {
       timestamp: new Date().toISOString(),
       status: 'streaming',
     };
-    setMessages((current) => [...current, userMessage, assistantMessage]);
+    setMessages((current) =>
+      limitVisibleHistory([...current, userMessage, assistantMessage]),
+    );
     setInput('');
     setGenerationError('');
     setGenerating(true);
@@ -143,10 +154,12 @@ export function Studio() {
       }
       if (!receivedText) throw new Error('AI stream returned no text');
       setMessages((current) =>
-        current.map((message) =>
-          message.id === assistantId
-            ? { ...message, status: 'complete' }
-            : message,
+        limitVisibleHistory(
+          current.map((message) =>
+            message.id === assistantId
+              ? { ...message, status: 'complete' }
+              : message,
+          ),
         ),
       );
     } catch (error) {

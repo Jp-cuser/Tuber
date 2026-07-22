@@ -4,7 +4,7 @@ LocalAITuber is an independent Windows-first implementation of a local AI charac
 
 ## Current status
 
-Phase 1 provides the interactive studio shell, introduction screen, draggable/resizable controls, chat and assistant presentation, six themes, media backgrounds, image overlays, settings import/export/reset, five character presets, versioned local persistence, and a 16-language UI. AI connections and character renderers begin in later phases and are clearly marked as unavailable.
+Phase 2 is in progress. The studio now connects chat to server-side AI adapters, supports streamed responses and cancellation, and keeps a configurable bounded short-term history. Character renderers begin in later phases.
 
 ### Studio controls
 
@@ -54,6 +54,8 @@ The diagnostics response never includes tokens or other environment secrets. Do 
 ## Configuration
 
 See `.env.example`. `ACCESS_TOKEN` and `DEMO_TOKEN`, when used, must contain at least 16 characters. `ALLOWED_ORIGINS` is a comma-separated list of absolute origins.
+
+AI secrets remain server-side. Configure a provider with variables such as `AI_OPENAI_API_KEY`, `AI_ANTHROPIC_API_KEY`, or `AI_GOOGLE_API_KEY`; provider-specific base URLs use `AI_<PROVIDER>_BASE_URL`. Azure additionally uses `AI_AZURE_DEPLOYMENT` and `AI_AZURE_API_VERSION`. `AI_REQUEST_TIMEOUT_MS` defaults to 60000. Select the provider, model, and short-term history limit in studio settings. Imported history limits outside 2-200 are reset to the safe default of 20 messages.
 
 ## Baseline and parity
 

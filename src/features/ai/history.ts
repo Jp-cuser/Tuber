@@ -1,5 +1,14 @@
 import type { Message } from './types';
 
+export function trimConversationHistory(
+  messages: readonly Message[],
+  maximum: number,
+): Message[] {
+  if (!Number.isInteger(maximum) || maximum < 1)
+    throw new Error('History maximum must be a positive integer');
+  return messages.slice(-maximum);
+}
+
 export class ShortTermHistory {
   private messages: Message[] = [];
   constructor(private readonly maximum: number) {
@@ -7,7 +16,10 @@ export class ShortTermHistory {
       throw new Error('History maximum must be a positive integer');
   }
   add(message: Message): void {
-    this.messages = [...this.messages, message].slice(-this.maximum);
+    this.messages = trimConversationHistory(
+      [...this.messages, message],
+      this.maximum,
+    );
   }
   list(): readonly Message[] {
     return [...this.messages];

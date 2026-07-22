@@ -77,7 +77,7 @@
 | TTS-010      | TTS             | Azure TTS                                          | Required    | Phase 6  | Not Started |                                                                                          |
 | TTS-011      | TTS             | Cartesia                                           | Required    | Phase 6  | Not Started |                                                                                          |
 | TTS-012      | TTS             | Audio queue/interrupt/lip sync                     | Required    | Phase 6  | Not Started |                                                                                          |
-| MEM-001      | Memory          | Short-term history                                 | Required    | Phase 2  | Not Started |                                                                                          |
+| MEM-001      | Memory          | Short-term history                                 | Required    | Phase 2  | In Progress | `history.ts`; bounded studio/API history; migration and unit tests; Phase 2 report       |
 | MEM-002      | Memory          | Embedding and RAG                                  | Required    | Phase 8  | Not Started |                                                                                          |
 | MEM-003      | Memory          | Memory files CRUD                                  | Required    | Phase 8  | Not Started |                                                                                          |
 | MEM-004      | Memory          | Restore and store sync                             | Required    | Phase 8  | Not Started |                                                                                          |

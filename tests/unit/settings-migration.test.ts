@@ -13,12 +13,19 @@ describe('migrateSettings', () => {
         state: { theme: 'forest', chatWidth: 480 },
       }),
     ).toMatchObject({
-      version: 2,
+      version: 3,
       theme: 'forest',
       chatWidth: 480,
       language: 'ja',
       aiProvider: 'openai',
       aiModel: 'gpt-4o-mini',
+      historyLimit: 20,
     });
+  });
+
+  it('rejects an out-of-range imported history limit', () => {
+    expect(
+      migrateSettings({ state: { historyLimit: 1000 } }).historyLimit,
+    ).toBe(20);
   });
 });

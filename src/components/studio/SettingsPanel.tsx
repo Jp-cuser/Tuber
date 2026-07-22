@@ -119,6 +119,21 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
             maxLength={200}
           />
         </label>
+        <label className="grid gap-1 text-sm">
+          <span className="text-white/65">Maximum history messages</span>
+          <input
+            type="number"
+            className="rounded-lg border border-white/15 bg-slate-900 px-3 py-2"
+            value={store.historyLimit}
+            min={2}
+            max={200}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              if (Number.isInteger(value) && value >= 2 && value <= 200)
+                update('historyLimit', value);
+            }}
+          />
+        </label>
         <Select
           label={t('language')}
           value={store.language}
