@@ -18,7 +18,7 @@ import {
 import type { Message } from '@/features/ai/types';
 import { presets, type BackgroundMode } from '@/features/settings/types';
 import { useSettingsStore } from '@/features/settings/store';
-import { MediaBackground } from './MediaBackground';
+import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 
 const themeClasses = {
@@ -54,6 +54,7 @@ export function Studio() {
   const overlayInput = useRef<HTMLInputElement>(null);
   const imageAttachmentInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
+  const backgroundRef = useRef<MediaBackgroundHandle>(null);
   const preset =
     presets.find((item) => item.id === settings.selectedPreset) ?? presets[0];
   const limitVisibleHistory = (current: Message[]) => {
@@ -111,6 +112,19 @@ export function Studio() {
       .catch((error: unknown) =>
         setGenerationError(
           error instanceof Error ? error.message : 'Unable to attach image',
+        ),
+      );
+  };
+  const captureBackgroundFrame = () => {
+    void backgroundRef.current
+      ?.captureFrame()
+      .then((attachment) => {
+        setImageAttachment(attachment);
+        setGenerationError('');
+      })
+      .catch((error: unknown) =>
+        setGenerationError(
+          error instanceof Error ? error.message : 'Unable to capture frame',
         ),
       );
   };
@@ -255,6 +269,7 @@ export function Studio() {
       className={`relative min-h-screen overflow-hidden text-white ${themeClasses[settings.theme]}`}
     >
       <MediaBackground
+        ref={backgroundRef}
         mode={settings.videoVisible ? settings.backgroundMode : 'gradient'}
         source={mediaSource}
       />
@@ -449,6 +464,19 @@ export function Studio() {
           >
             +Image
           </button>
+          {settings.videoVisible &&
+            (settings.backgroundMode === 'webcam' ||
+              settings.backgroundMode === 'capture') && (
+              <button
+                className="rounded-full bg-white/10 px-4 font-bold"
+                type="button"
+                aria-label="Capture current frame"
+                onClick={captureBackgroundFrame}
+                disabled={generating}
+              >
+                +Frame
+              </button>
+            )}
           <input
             className="min-w-0 flex-1 rounded-full border border-white/15 bg-slate-950/75 px-5 py-3 backdrop-blur"
             placeholder={t('inputPlaceholder')}

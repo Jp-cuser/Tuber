@@ -24,6 +24,7 @@ Phase 2 remains in progress. This report records completed evidence without clai
 
 ## AI-018 multimodal input
 
-- In progress: local JPEG, PNG, WebP, and GIF files can be validated, previewed, removed, rendered in history, and sent as multimodal message content.
-- Client and server size/type validation prevents unsupported or oversized payloads.
-- Webcam and screen-capture frame attachment remain outstanding, so AI-018 is not Done.
+- Local JPEG, PNG, WebP, and GIF files can be validated, previewed, removed, rendered in history, and sent as multimodal message content.
+- Active webcam and screen-capture backgrounds expose their current video frame to the same attachment pipeline.
+- Frames are scaled to at most 768 pixels, JPEG-compressed, and then processed by the shared size/type validation.
+- Client and server validation prevents unsupported or oversized payloads; capture readiness and encoding failures are surfaced safely.

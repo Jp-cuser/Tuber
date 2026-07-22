@@ -1,14 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import type { BackgroundMode } from '@/features/settings/types';
+import { captureVideoFrame } from '@/features/ai/capture-frame';
+import type { ImageAttachment } from '@/features/ai/image-attachment';
 
-export function MediaBackground({
-  mode,
-  source,
-}: {
-  mode: BackgroundMode;
-  source?: string;
-}) {
+export interface MediaBackgroundHandle {
+  captureFrame: () => Promise<ImageAttachment>;
+}
+
+export const MediaBackground = forwardRef<
+  MediaBackgroundHandle,
+  { mode: BackgroundMode; source?: string }
+>(function MediaBackground({ mode, source }, ref) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  useImperativeHandle(ref, () => ({
+    captureFrame: async () => {
+      if (!videoRef.current || (mode !== 'webcam' && mode !== 'capture'))
+        throw new Error('Webcam or screen capture is not active');
+      return captureVideoFrame(videoRef.current);
+    },
+  }));
   useEffect(() => {
     if (mode !== 'webcam' && mode !== 'capture') return;
     let stream: MediaStream | undefined;
@@ -68,4 +78,4 @@ export function MediaBackground({
       data-testid="media-background"
     />
   );
-}
+});
