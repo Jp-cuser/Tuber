@@ -16,6 +16,17 @@ recognition without sending microphone audio through the application server.
 - Chromium verifies unsupported/permission-limited microphone environments are
   reported without crashing the Studio.
 
+## STT-002 Whisper transcription
+
+- A server-side OpenAI-compatible adapter supports `whisper-1`,
+  `gpt-4o-transcribe`, and `gpt-4o-mini-transcribe`.
+- Runtime validation restricts models, MIME types, language tags, and file
+  names before provider access.
+- The Studio can transcribe a selected audio file into editable chat input.
+- The API key remains server-only and provider failures return safe errors.
+- Contract and integration fixtures verify the multipart provider request and
+  protected application route.
+
 ## STT-004 continuous microphone foundation
 
 - Continuous mode restarts after normal recognition end and preserves confirmed
@@ -26,6 +37,7 @@ recognition without sending microphone audio through the application server.
 
 ## Verification
 
-- Unit: 35 suites and 199 tests pass.
-- Integration: 3 suites and 7 tests pass.
-- Chromium E2E: 6 tests pass, including microphone availability handling.
+- Unit: 36 suites and 204 tests pass.
+- Integration: 4 suites and 9 tests pass.
+- Chromium E2E: 7 tests pass, including microphone availability and Whisper
+  route handling.

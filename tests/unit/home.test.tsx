@@ -44,6 +44,17 @@ describe('Home', () => {
     ).toBeInTheDocument();
   });
 
+  it('offers every supported Whisper transcription model', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    const model = screen.getByLabelText('Whisper transcription model');
+    expect(model).toHaveValue('gpt-4o-mini-transcribe');
+    expect(model.querySelectorAll('option')).toHaveLength(3);
+    expect(
+      screen.getByRole('button', { name: 'Transcribe audio file' }),
+    ).toBeInTheDocument();
+  });
+
   it('changes avatar pose, motion, and emotion controls', () => {
     render(<Home />);
     fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));

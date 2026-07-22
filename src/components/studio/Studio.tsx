@@ -24,6 +24,8 @@ import {
   BrowserSpeechRecognition,
   browserRecognitionSupported,
 } from '@/features/speech/browser-recognition';
+import { transcribeAudioFile } from '@/features/speech/transcription-client';
+import { whisperModels, type WhisperModel } from '@/features/speech/whisper';
 import { MediaBackground, type MediaBackgroundHandle } from './MediaBackground';
 import { SettingsPanel } from './SettingsPanel';
 import { validateVrmFile } from '@/features/avatar/vrm-file';
@@ -102,6 +104,10 @@ export function Studio() {
   const [microphoneActive, setMicrophoneActive] = useState(false);
   const [continuousMicrophone, setContinuousMicrophone] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('Microphone stopped');
+  const [whisperModel, setWhisperModel] = useState<WhisperModel>(
+    'gpt-4o-mini-transcribe',
+  );
+  const [transcribing, setTranscribing] = useState(false);
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -185,6 +191,7 @@ export function Studio() {
   const pngTuberTalkingInput = useRef<HTMLInputElement>(null);
   const generationController = useRef<AbortController>();
   const speechRecognition = useRef<BrowserSpeechRecognition>();
+  const audioTranscriptionInput = useRef<HTMLInputElement>(null);
   const speechBaseInput = useRef('');
   const backgroundRef = useRef<MediaBackgroundHandle>(null);
   const preset =
@@ -340,6 +347,34 @@ export function Studio() {
         error instanceof Error ? error.message : 'Unable to start microphone',
       );
       setMicrophoneActive(false);
+    }
+  };
+
+  const chooseAudioForTranscription = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setTranscribing(true);
+    setSpeechStatus('Transcribing audio');
+    try {
+      const transcript = await transcribeAudioFile(
+        file,
+        whisperModel,
+        settings.language,
+      );
+      setInput(
+        (current) =>
+          `${current.trim()}${current.trim() ? ' ' : ''}${transcript}`,
+      );
+      setSpeechStatus('Transcript ready');
+    } catch (error) {
+      setSpeechStatus(
+        error instanceof Error ? error.message : 'Transcription failed',
+      );
+    } finally {
+      setTranscribing(false);
     }
   };
 
@@ -714,6 +749,35 @@ export function Studio() {
             <p className="col-span-2 text-xs text-white/60" aria-live="polite">
               {speechStatus}
             </p>
+            <select
+              className="panel-button col-span-2"
+              aria-label="Whisper transcription model"
+              value={whisperModel}
+              disabled={transcribing}
+              onChange={(event) =>
+                setWhisperModel(event.target.value as WhisperModel)
+              }
+            >
+              {whisperModels.map((model) => (
+                <option key={model}>{model}</option>
+              ))}
+            </select>
+            <input
+              ref={audioTranscriptionInput}
+              className="hidden"
+              type="file"
+              aria-label="Audio file for transcription"
+              accept="audio/webm,audio/mp4,audio/mpeg,audio/wav,audio/ogg"
+              onChange={(event) => void chooseAudioForTranscription(event)}
+            />
+            <button
+              className="panel-button col-span-2"
+              type="button"
+              disabled={transcribing}
+              onClick={() => audioTranscriptionInput.current?.click()}
+            >
+              {transcribing ? 'Transcribing audio…' : 'Transcribe audio file'}
+            </button>
             {avatarMode === 'live2d' && (
               <>
                 {(
@@ -1315,6 +1379,7 @@ export function Studio() {
             )}
           <input
             className="min-w-0 flex-1 rounded-full border border-white/15 bg-slate-950/75 px-5 py-3 backdrop-blur"
+            aria-label="Chat message"
             placeholder={t('inputPlaceholder')}
             value={input}
             onChange={(event) => setInput(event.target.value)}

@@ -223,3 +223,32 @@ test('reports browser microphone availability safely', async ({ page }) => {
     page.getByText('Browser speech recognition is not supported'),
   ).toBeVisible();
 });
+
+test('transcribes an audio file through the protected application route', async ({
+  page,
+}) => {
+  await page.route('**/api/audio/transcribe', async (route) => {
+    const request = route.request();
+    expect(request.method()).toBe('POST');
+    expect(request.postDataJSON()).toMatchObject({
+      model: 'gpt-4o-mini-transcribe',
+      mimeType: 'audio/webm',
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ text: 'fixture transcript' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('Audio file for transcription').setInputFiles({
+    name: 'voice.webm',
+    mimeType: 'audio/webm',
+    buffer: Buffer.from([0x1a, 0x45, 0xdf, 0xa3]),
+  });
+  await expect(page.getByLabel('Chat message')).toHaveValue(
+    'fixture transcript',
+  );
+  await expect(page.getByText('Transcript ready')).toBeVisible();
+});

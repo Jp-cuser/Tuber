@@ -93,6 +93,11 @@ Interim/final transcripts remain editable before sending; continuous mode can
 restart recognition, and permission, microphone, support, and timeout failures
 are shown in the control panel.
 
+Whisper transcription accepts audio files from the control panel using
+`whisper-1`, `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe`. Configure the
+server-only `AI_OPENAI_API_KEY`; provider credentials are not exposed to the
+browser. `MAX_REQUEST_BODY_BYTES` must accommodate base64-encoded audio.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.
