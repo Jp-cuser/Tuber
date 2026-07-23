@@ -4,6 +4,7 @@ import { KoeiromapAdapter } from './adapters/koeiromap';
 import { GoogleTtsAdapter } from './adapters/google';
 import { StyleBertVits2Adapter } from './adapters/stylebertvits2';
 import { AivisSpeechAdapter } from './adapters/aivis-speech';
+import { AivisCloudAdapter } from './adapters/aivis-cloud';
 import type { TtsAdapter, VoiceEngine } from './types';
 
 export function createServerTtsAdapter(
@@ -50,6 +51,16 @@ export function createServerTtsAdapter(
           .filter(Boolean),
       ),
     });
+  }
+  if (engine === 'aivis_cloud_api') {
+    const apiKey = environment.TTS_AIVIS_CLOUD_API_KEY?.trim();
+    if (!apiKey)
+      throw new AppError(
+        'INTERNAL_ERROR',
+        500,
+        'Aivis Cloud is not configured',
+      );
+    return new AivisCloudAdapter({ apiKey });
   }
   if (engine !== 'voicevox')
     throw new AppError('BAD_REQUEST', 400, 'TTS engine is not implemented');

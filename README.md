@@ -126,6 +126,12 @@ AivisSpeech uses `TTS_AIVIS_SPEECH_BASE_URL` (default
 emotion intensity, tempo dynamics, and pre/post phoneme silence. Remote LAN
 origins must be explicitly allowed.
 
+Aivis Cloud uses the server-only `TTS_AIVIS_CLOUD_API_KEY` and the fixed
+official HTTPS synthesis endpoint. Enter the model UUID and optional speaker
+UUID in Studio, then choose either a style ID or style name. Speaking rate,
+pitch, emotional intensity, tempo dynamics, and leading/trailing silence are
+sent without exposing the Bearer credential to the browser.
+
 ## Baseline and parity
 
 Behavioral parity is measured against baseline commit `198dbe1d5f8a7f86f9b527c7f0fd1eb3fc9d0988` recorded in `SOURCE_BASELINE.md`. `FEATURE_MATRIX.md` is authoritative for completion. License-gated integrations will require user-supplied licensed SDKs or assets.

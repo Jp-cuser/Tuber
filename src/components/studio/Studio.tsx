@@ -132,6 +132,13 @@ export function Studio() {
   const [aivisStyleId, setAivisStyleId] = useState('888753760');
   const [aivisPrePhoneme, setAivisPrePhoneme] = useState(0.1);
   const [aivisPostPhoneme, setAivisPostPhoneme] = useState(0.1);
+  const [aivisCloudModel, setAivisCloudModel] = useState(
+    'a59cb814-0083-4369-8542-f51a29e72af7',
+  );
+  const [aivisCloudSpeaker, setAivisCloudSpeaker] = useState('');
+  const [aivisCloudUseStyleName, setAivisCloudUseStyleName] = useState(false);
+  const [aivisCloudStyleId, setAivisCloudStyleId] = useState(0);
+  const [aivisCloudStyleName, setAivisCloudStyleName] = useState('Normal');
   const [imageAttachment, setImageAttachment] = useState<ImageAttachment>();
   const [mediaSource, setMediaSource] = useState<string>();
   const [overlaySource, setOverlaySource] = useState<string>();
@@ -487,15 +494,31 @@ export function Studio() {
                     sdpRatio: styleBertSdpRatio,
                     speed: ttsSpeed,
                   }
-                : {
-                    speakerId: aivisStyleId,
-                    speed: ttsSpeed,
-                    pitch: ttsPitch,
-                    intonation: ttsIntonation,
-                    tempoDynamics: aivisTempoDynamics,
-                    prePhonemeLength: aivisPrePhoneme,
-                    postPhonemeLength: aivisPostPhoneme,
-                  },
+                : ttsEngine === 'aivis_speech'
+                  ? {
+                      speakerId: aivisStyleId,
+                      speed: ttsSpeed,
+                      pitch: ttsPitch,
+                      intonation: ttsIntonation,
+                      tempoDynamics: aivisTempoDynamics,
+                      prePhonemeLength: aivisPrePhoneme,
+                      postPhonemeLength: aivisPostPhoneme,
+                    }
+                  : {
+                      model: aivisCloudModel,
+                      ...(aivisCloudSpeaker
+                        ? { speakerId: aivisCloudSpeaker }
+                        : {}),
+                      ...(aivisCloudUseStyleName
+                        ? { styleName: aivisCloudStyleName }
+                        : { styleId: aivisCloudStyleId }),
+                      speed: ttsSpeed,
+                      pitch: ttsPitch,
+                      intonation: ttsIntonation,
+                      tempoDynamics: aivisTempoDynamics,
+                      prePhonemeLength: aivisPrePhoneme,
+                      postPhonemeLength: aivisPostPhoneme,
+                    },
       );
       audioPlayback.current?.pause();
       if (audioPlaybackUrl.current)
@@ -947,6 +970,7 @@ export function Studio() {
                 <option value="google">Google Text-to-Speech</option>
                 <option value="stylebertvits2">Style-Bert-VITS2</option>
                 <option value="aivis_speech">AivisSpeech</option>
+                <option value="aivis_cloud_api">Aivis Cloud API</option>
               </select>
               {ttsEngine === 'voicevox' ? (
                 <>
@@ -1191,7 +1215,7 @@ export function Studio() {
                     />
                   </label>
                 </>
-              ) : (
+              ) : ttsEngine === 'aivis_speech' ? (
                 <>
                   <label className="text-xs text-white/70">
                     Style ID
@@ -1266,6 +1290,137 @@ export function Studio() {
                         min={min}
                         max={max}
                         step="0.05"
+                        value={value}
+                        onChange={(event) => update(event.target.valueAsNumber)}
+                      />
+                    </label>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <label className="col-span-2 text-xs text-white/70">
+                    Model UUID
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Aivis Cloud model UUID"
+                      value={aivisCloudModel}
+                      onChange={(event) =>
+                        setAivisCloudModel(event.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="col-span-2 text-xs text-white/70">
+                    Speaker UUID (optional)
+                    <input
+                      className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                      aria-label="Aivis Cloud speaker UUID"
+                      value={aivisCloudSpeaker}
+                      onChange={(event) =>
+                        setAivisCloudSpeaker(event.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="col-span-2 flex items-center gap-2 text-xs text-white/70">
+                    <input
+                      aria-label="Select Aivis Cloud style by name"
+                      type="checkbox"
+                      checked={aivisCloudUseStyleName}
+                      onChange={(event) =>
+                        setAivisCloudUseStyleName(event.target.checked)
+                      }
+                    />
+                    Select style by name
+                  </label>
+                  {aivisCloudUseStyleName ? (
+                    <label className="col-span-2 text-xs text-white/70">
+                      Style name
+                      <input
+                        className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                        aria-label="Aivis Cloud style name"
+                        value={aivisCloudStyleName}
+                        onChange={(event) =>
+                          setAivisCloudStyleName(event.target.value)
+                        }
+                      />
+                    </label>
+                  ) : (
+                    <label className="col-span-2 text-xs text-white/70">
+                      Style ID
+                      <input
+                        className="mt-1 w-full rounded bg-white/10 px-2 py-1"
+                        aria-label="Aivis Cloud style ID"
+                        type="number"
+                        min="0"
+                        max="31"
+                        step="1"
+                        value={aivisCloudStyleId}
+                        onChange={(event) =>
+                          setAivisCloudStyleId(event.target.valueAsNumber)
+                        }
+                      />
+                    </label>
+                  )}
+                  {(
+                    [
+                      [
+                        'Aivis Cloud speed',
+                        'Speed',
+                        ttsSpeed,
+                        0.5,
+                        2,
+                        setTtsSpeed,
+                      ],
+                      [
+                        'Aivis Cloud pitch',
+                        'Pitch',
+                        ttsPitch,
+                        -1,
+                        1,
+                        setTtsPitch,
+                      ],
+                      [
+                        'Aivis Cloud emotion',
+                        'Emotion',
+                        ttsIntonation,
+                        0,
+                        2,
+                        setTtsIntonation,
+                      ],
+                      [
+                        'Aivis Cloud tempo dynamics',
+                        'Tempo dynamics',
+                        aivisTempoDynamics,
+                        0,
+                        2,
+                        setAivisTempoDynamics,
+                      ],
+                      [
+                        'Aivis Cloud leading silence',
+                        'Leading silence',
+                        aivisPrePhoneme,
+                        0,
+                        60,
+                        setAivisPrePhoneme,
+                      ],
+                      [
+                        'Aivis Cloud trailing silence',
+                        'Trailing silence',
+                        aivisPostPhoneme,
+                        0,
+                        60,
+                        setAivisPostPhoneme,
+                      ],
+                    ] as const
+                  ).map(([label, title, value, min, max, update]) => (
+                    <label key={label} className="text-xs text-white/70">
+                      {title}: {value.toFixed(2)}
+                      <input
+                        className="w-full"
+                        aria-label={label}
+                        type="range"
+                        min={min}
+                        max={max}
+                        step="0.1"
                         value={value}
                         onChange={(event) => update(event.target.valueAsNumber)}
                       />

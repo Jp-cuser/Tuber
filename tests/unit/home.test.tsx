@@ -101,6 +101,17 @@ describe('Home', () => {
       '1',
     );
     expect(screen.getByLabelText('AivisSpeech pre phoneme')).toHaveValue('0.1');
+    fireEvent.change(screen.getByLabelText('TTS engine'), {
+      target: { value: 'aivis_cloud_api' },
+    });
+    expect(screen.getByLabelText('Aivis Cloud model UUID')).toHaveValue(
+      'a59cb814-0083-4369-8542-f51a29e72af7',
+    );
+    expect(screen.getByLabelText('Aivis Cloud style ID')).toHaveValue(0);
+    fireEvent.click(screen.getByLabelText('Select Aivis Cloud style by name'));
+    expect(screen.getByLabelText('Aivis Cloud style name')).toHaveValue(
+      'Normal',
+    );
   });
 
   it('changes avatar pose, motion, and emotion controls', () => {

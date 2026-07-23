@@ -28,10 +28,10 @@ contract and completes VOICEVOX end to end.
 
 ## Verification
 
-- Unit: 43 suites and 224 tests pass.
+- Unit: 44 suites and 227 tests pass.
 - Integration: 5 suites and 11 tests pass.
-- Chromium E2E: 12 tests pass, including protected cloud and local TTS preview
-  playback through Style-Bert-VITS2 and AivisSpeech.
+- Chromium E2E: 13 tests pass, including protected cloud and local TTS preview
+  playback through Style-Bert-VITS2, AivisSpeech, and Aivis Cloud.
 - Format, lint, typecheck, and production build pass.
 
 ## TTS-002 Koeiromap
@@ -73,3 +73,14 @@ contract and completes VOICEVOX end to end.
 - Loopback is the default; non-loopback origins require the explicit local
   allowlist and redirects are rejected.
 - Contract, Studio, and Chromium fixtures cover synthesis and timing controls.
+
+## TTS-006 Aivis Cloud API
+
+- The adapter uses the official `POST /v1/tts/synthesize` endpoint with a
+  server-only Bearer credential and returns MP3 audio.
+- Model and optional speaker UUIDs are validated, and style ID/style name are
+  mutually exclusive.
+- Studio controls map speaking rate, pitch, emotional intensity, tempo
+  dynamics, and leading/trailing silence to the Cloud request.
+- Redirect rejection, bounded inputs, contract fixtures, and Chromium routing
+  cover the protected provider path.

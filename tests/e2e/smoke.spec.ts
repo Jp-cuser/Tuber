@@ -469,3 +469,55 @@ test('sends AivisSpeech style and timing controls through the protected route', 
   await page.getByRole('button', { name: 'Test synthesized speech' }).click();
   await expect(page.getByText('Playing synthesized speech')).toBeVisible();
 });
+
+test('sends Aivis Cloud model and named style through the protected route', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    class AudioFixture {
+      onended: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      pause() {}
+      async play() {}
+    }
+    Object.defineProperty(window, 'Audio', {
+      configurable: true,
+      value: AudioFixture,
+    });
+  });
+  await page.route('**/api/tts/synthesize', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      engine: 'aivis_cloud_api',
+      text: 'aivis cloud fixture',
+      options: {
+        model: 'a59cb814-0083-4369-8542-f51a29e72af7',
+        styleName: 'Happy',
+        speed: 1.2,
+        pitch: 0.1,
+        intonation: 1.3,
+        tempoDynamics: 1.4,
+        prePhonemeLength: 0.2,
+        postPhonemeLength: 0.3,
+      },
+    });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audioBase64: 'SUQz', mimeType: 'audio/mpeg' }),
+    });
+  });
+  await page.goto('/');
+  await page.locator('button').first().click();
+  await page.getByLabel('TTS engine').selectOption('aivis_cloud_api');
+  await page.getByLabel('Select Aivis Cloud style by name').check();
+  await page.getByLabel('Aivis Cloud style name').fill('Happy');
+  await page.getByLabel('Aivis Cloud speed').fill('1.2');
+  await page.getByLabel('Aivis Cloud pitch').fill('0.1');
+  await page.getByLabel('Aivis Cloud emotion').fill('1.3');
+  await page.getByLabel('Aivis Cloud tempo dynamics').fill('1.4');
+  await page.getByLabel('Aivis Cloud leading silence').fill('0.2');
+  await page.getByLabel('Aivis Cloud trailing silence').fill('0.3');
+  await page.getByLabel('Chat message').fill('aivis cloud fixture');
+  await page.getByRole('button', { name: 'Test synthesized speech' }).click();
+  await expect(page.getByText('Playing synthesized speech')).toBeVisible();
+});

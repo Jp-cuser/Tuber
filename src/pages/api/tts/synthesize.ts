@@ -23,8 +23,10 @@ const requestSchema = z.object({
       volumeGainDb: z.number().min(-96).max(16).optional(),
       sdpRatio: z.number().min(0).max(1).optional(),
       tempoDynamics: z.number().min(0).max(2).optional(),
-      prePhonemeLength: z.number().min(0).max(10).optional(),
-      postPhonemeLength: z.number().min(0).max(10).optional(),
+      prePhonemeLength: z.number().min(0).max(60).optional(),
+      postPhonemeLength: z.number().min(0).max(60).optional(),
+      styleId: z.number().int().min(0).max(31).optional(),
+      styleName: z.string().max(20).optional(),
     })
     .default({}),
 });

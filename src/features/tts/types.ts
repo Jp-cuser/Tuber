@@ -29,6 +29,8 @@ export interface TtsOptions {
   tempoDynamics?: number;
   prePhonemeLength?: number;
   postPhonemeLength?: number;
+  styleId?: number;
+  styleName?: string;
 }
 
 export interface AudioPayload {
